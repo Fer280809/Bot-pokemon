@@ -4,39 +4,51 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     let user = await userDB.getUser(m.sender)
     let team = user.team || []
 
-    if (team.length === 0) return m.reply('❌ No tienes Pokémon en tu equipo. ¡Usa .start!')
+    if (team.length === 0) return m.reply('❌ No tienes un equipo. Usa .start')
 
-    // Lógica para cambiar el orden del equipo (.invpk 2)
-    if (text) {
-        let idx = parseInt(text) - 1
-        if (idx > 0 && idx < team.length) {
-            let [selected] = team.splice(idx, 1)
-            team.unshift(selected) // Mover al primer puesto
+    // Lógica de cambio de posición (.invpk 2)
+    if (text && !isNaN(text)) {
+        let i = parseInt(text) - 1
+        if (i > 0 && i < team.length) {
+            let temp = team[0]
+            team[0] = team[i]
+            team[i] = temp
             await userDB.saveUser(m.sender)
-            return m.reply(`✅ *${selected.name}* ahora es el líder de tu equipo.`)
+            return m.reply(`✅ *${team[0].name}* ahora es tu Pokémon principal.`)
         }
     }
 
-    let txt = `👥 *EQUIPO POKÉMON* 👥\n`
+    let txt = `👥 *GESTOR DE EQUIPO* 👥\n`
     txt += `￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n`
 
     team.forEach((pk, i) => {
-        let healthIcon = pk.hp <= 0 ? '💀' : pk.hp < (pk.maxHp / 2) ? '⚠️' : '✅'
+        let hpBar = drawBar(pk.hp, pk.maxHp)
+        let xpBar = drawBar(pk.xp || 0, 100, '🟦') // Barra azul para XP
+        
         txt += `${i === 0 ? '⭐' : '▪️'} *${i + 1}. ${pk.name.toUpperCase()}* [Lv. ${pk.level}]\n`
-        txt += `   ${healthIcon} HP: ${pk.hp}/${pk.maxHp} | XP: ${pk.xp}/100\n`
-        if (i === 0) {
-            txt += `   ⚔️ Ataques: ${pk.moves.join(', ')}\n`
+        txt += `   ❤️ HP: ${hpBar} ${pk.hp}/${pk.maxHp}\n`
+        txt += `   🔷 XP: ${xpBar} ${pk.xp || 0}%\n`
+        
+        if (i === 0) { // Solo mostrar movimientos del principal para no saturar
+            txt += `   ⚔️ *MOVIMIENTOS:* ${pk.moves.join(' | ')}\n`
         }
         txt += `\n`
     })
 
     txt += `￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n`
-    txt += `💡 *Para cambiar líder:* \`${usedPrefix + command} [número]\`\n`
-    txt += `💡 *Para ver stats:* \`.poke [número]\``
+    txt += `👉 Escribe \`${usedPrefix + command} [número]\` para cambiar al líder.\n`
+    txt += `👉 Escribe \`.poke [número]\` para ver stats base.`
     
     await conn.reply(m.chat, txt, m)
 }
 
+function drawBar(cur, max, color = null) {
+    let perc = Math.max(0, Math.min(10, Math.round((cur / max) * 10)))
+    if (!color) {
+        color = perc > 5 ? '🟩' : perc > 2 ? '🟧' : '🟥'
+    }
+    return color.repeat(perc) + '⬜'.repeat(10 - perc)
+}
+
 handler.command = /^(invpk|equipo|team)$/i
 export default handler
- 
