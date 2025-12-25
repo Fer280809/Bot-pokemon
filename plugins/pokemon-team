@@ -1,0 +1,41 @@
+import userDB from '../lib/userDatabase.js'
+
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    let user = await userDB.getUser(m.sender)
+    let team = user.team || []
+
+    if (team.length === 0) return m.reply('❌ No tienes Pokémon en tu equipo. ¡Usa .start!')
+
+    // Lógica para cambiar el orden del equipo (.invpk 2)
+    if (text) {
+        let idx = parseInt(text) - 1
+        if (idx > 0 && idx < team.length) {
+            let [selected] = team.splice(idx, 1)
+            team.unshift(selected) // Mover al primer puesto
+            await userDB.saveUser(m.sender)
+            return m.reply(`✅ *${selected.name}* ahora es el líder de tu equipo.`)
+        }
+    }
+
+    let txt = `👥 *EQUIPO POKÉMON* 👥\n`
+    txt += `￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n`
+
+    team.forEach((pk, i) => {
+        let healthIcon = pk.hp <= 0 ? '💀' : pk.hp < (pk.maxHp / 2) ? '⚠️' : '✅'
+        txt += `${i === 0 ? '⭐' : '▪️'} *${i + 1}. ${pk.name.toUpperCase()}* [Lv. ${pk.level}]\n`
+        txt += `   ${healthIcon} HP: ${pk.hp}/${pk.maxHp} | XP: ${pk.xp}/100\n`
+        if (i === 0) {
+            txt += `   ⚔️ Ataques: ${pk.moves.join(', ')}\n`
+        }
+        txt += `\n`
+    })
+
+    txt += `￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣\n`
+    txt += `💡 *Para cambiar líder:* \`${usedPrefix + command} [número]\`\n`
+    txt += `💡 *Para ver stats:* \`.poke [número]\``
+    
+    await conn.reply(m.chat, txt, m)
+}
+
+handler.command = /^(invpk|equipo|team)$/i
+export default handler
