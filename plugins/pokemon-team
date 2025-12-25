@@ -39,3 +39,4 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.command = /^(invpk|equipo|team)$/i
 export default handler
+ 
