@@ -1,0 +1,723 @@
+{
+  "items": {
+    "medals": {
+      "badge_boulder": {
+        "id": "badge_boulder",
+        "name": "Medalla Roca",
+        "type": "badge",
+        "description": "Medalla otorgada por Brock por vencer el Gimnasio de Ciudad Plateada. Permite usar Cortar fuera de batalla.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "hm01_cut"
+      },
+      "badge_cascade": {
+        "id": "badge_cascade",
+        "name": "Medalla Cascada",
+        "type": "badge",
+        "description": "Medalla otorgada por Misty por vencer el Gimnasio de Ciudad Celeste. Permite usar Surf fuera de batalla.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "hm03_surf"
+      },
+      "badge_marsh": {
+        "id": "badge_marsh",
+        "name": "Medalla Pantano",
+        "type": "badge",
+        "description": "Medalla otorgada por Sabrina por vencer el Gimnasio de Ciudad Carmín. Aumenta la Defensa Especial de tus Pokémon.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "spd_boost"
+      },
+      "badge_thunder": {
+        "id": "badge_thunder",
+        "name": "Medalla Trueno",
+        "type": "badge",
+        "description": "Medalla otorgada por el Teniente Surge por vencer el Gimnasio de Ciudad Azulona. Permite usar Vuelo fuera de batalla.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "hm02_fly"
+      },
+      "badge_earth": {
+        "id": "badge_earth",
+        "name": "Medalla Tierra",
+        "type": "badge",
+        "description": "Medalla otorgada por Giovanni por vencer el Gimnasio de Ciudad Verde. Aumenta la Velocidad de tus Pokémon.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "spe_boost"
+      }
+    },
+    "league_rewards": {
+      "champion_trophy": {
+        "id": "champion_trophy",
+        "name": "Trofeo de Campeón",
+        "type": "trophy",
+        "description": "Trofeo otorgado al convertirse en Campeón de la Liga Pokémon. Prueba de tu supremacía como entrenador.",
+        "sellable": false,
+        "stackable": 1,
+        "value": 0
+      },
+      "hall_of_fame_access": {
+        "id": "hall_of_fame_access",
+        "name": "Acceso Salón de la Fama",
+        "type": "key_item",
+        "description": "Permite registrar a tu equipo en el Salón de la Fama tras ganar la Liga Pokémon.",
+        "sellable": false,
+        "stackable": 1,
+        "value": 0
+      }
+    },
+    "pokeballs": {
+      "pokeball": {
+        "id": "pokeball",
+        "name": "Poké Ball",
+        "type": "pokeball",
+        "description": "Dispositivo para atrapar Pokémon salvajes. Ratio de captura básico.",
+        "sellable": true,
+        "buy_price": 200,
+        "sell_price": 100,
+        "stackable": 99,
+        "capture_rate": 1.0
+      },
+      "greatball": {
+        "id": "greatball",
+        "name": "Super Ball",
+        "type": "pokeball",
+        "description": "Una Poké Ball con mejor rendimiento que la normal. Ratio de captura mejorado.",
+        "sellable": true,
+        "buy_price": 600,
+        "sell_price": 300,
+        "stackable": 99,
+        "capture_rate": 1.5
+      },
+      "ultraball": {
+        "id": "ultraball",
+        "name": "Ultra Ball",
+        "type": "pokeball",
+        "description": "Una Poké Ball de altísimo rendimiento. La mejor opción para Pokémon difíciles.",
+        "sellable": true,
+        "buy_price": 1200,
+        "sell_price": 600,
+        "stackable": 99,
+        "capture_rate": 2.0
+      },
+      "masterball": {
+        "id": "masterball",
+        "name": "Master Ball",
+        "type": "pokeball",
+        "description": "La Poké Ball definitiva. Atrapa cualquier Pokémon sin fallar.",
+        "sellable": false,
+        "stackable": 1,
+        "capture_rate": 255.0
+      },
+      "safariball": {
+        "id": "safariball",
+        "name": "Safari Ball",
+        "type": "pokeball",
+        "description": "Una Poké Ball especial usada en la Zona Safari. Ratio de captura especial.",
+        "sellable": false,
+        "stackable": 99,
+        "capture_rate": 1.5
+      }
+    },
+    "potions": {
+      "potion": {
+        "id": "potion",
+        "name": "Poción",
+        "type": "healing",
+        "description": "Restaura 20 PS de un Pokémon.",
+        "sellable": true,
+        "buy_price": 300,
+        "sell_price": 150,
+        "stackable": 99,
+        "heal_amount": 20
+      },
+      "superpotion": {
+        "id": "superpotion",
+        "name": "Superpoción",
+        "type": "healing",
+        "description": "Restaura 50 PS de un Pokémon.",
+        "sellable": true,
+        "buy_price": 700,
+        "sell_price": 350,
+        "stackable": 99,
+        "heal_amount": 50
+      },
+      "hyperpotion": {
+        "id": "hyperpotion",
+        "name": "Hiperpoción",
+        "type": "healing",
+        "description": "Restaura 200 PS de un Pokémon.",
+        "sellable": true,
+        "buy_price": 1500,
+        "sell_price": 750,
+        "stackable": 99,
+        "heal_amount": 200
+      },
+      "maxpotion": {
+        "id": "maxpotion",
+        "name": "Máx. Poción",
+        "type": "healing",
+        "description": "Restaura todos los PS de un Pokémon.",
+        "sellable": true,
+        "buy_price": 2500,
+        "sell_price": 1250,
+        "stackable": 99,
+        "heal_amount": "full"
+      }
+    },
+    "status_healing": {
+      "antidote": {
+        "id": "antidote",
+        "name": "Antídoto",
+        "type": "status_healing",
+        "description": "Cura el envenenamiento de un Pokémon.",
+        "sellable": true,
+        "buy_price": 100,
+        "sell_price": 50,
+        "stackable": 99,
+        "cures": [
+          "poison"
+        ]
+      },
+      "burnheal": {
+        "id": "burnheal",
+        "name": "Antiquemar",
+        "type": "status_healing",
+        "description": "Cura las quemaduras de un Pokémon.",
+        "sellable": true,
+        "buy_price": 250,
+        "sell_price": 125,
+        "stackable": 99,
+        "cures": [
+          "burn"
+        ]
+      },
+      "iceheal": {
+        "id": "iceheal",
+        "name": "Antihielo",
+        "type": "status_healing",
+        "description": "Descongela a un Pokémon.",
+        "sellable": true,
+        "buy_price": 250,
+        "sell_price": 125,
+        "stackable": 99,
+        "cures": [
+          "freeze"
+        ]
+      },
+      "awakening": {
+        "id": "awakening",
+        "name": "Despertar",
+        "type": "status_healing",
+        "description": "Despierta a un Pokémon.",
+        "sellable": true,
+        "buy_price": 250,
+        "sell_price": 125,
+        "stackable": 99,
+        "cures": [
+          "sleep"
+        ]
+      },
+      "paralyzeheal": {
+        "id": "paralyzeheal",
+        "name": "Antiparalizador",
+        "type": "status_healing",
+        "description": "Cura la parálisis de un Pokémon.",
+        "sellable": true,
+        "buy_price": 200,
+        "sell_price": 100,
+        "stackable": 99,
+        "cures": [
+          "paralysis"
+        ]
+      },
+      "fullheal": {
+        "id": "fullheal",
+        "name": "Cura Total",
+        "type": "status_healing",
+        "description": "Cura todos los problemas de estado de un Pokémon.",
+        "sellable": true,
+        "buy_price": 600,
+        "sell_price": 300,
+        "stackable": 99,
+        "cures": [
+          "poison",
+          "burn",
+          "freeze",
+          "sleep",
+          "paralysis",
+          "confusion"
+        ]
+      }
+    },
+    "evolution_items": {
+      "thunderstone": {
+        "id": "thunderstone",
+        "name": "Piedra Trueno",
+        "type": "evolution",
+        "description": "Una piedra extraña que emite chispas eléctricas. Hace evolucionar a ciertos Pokémon.",
+        "sellable": true,
+        "buy_price": 2100,
+        "sell_price": 1050,
+        "stackable": 99,
+        "evolves": [
+          "Pikachu",
+          "Eevee"
+        ]
+      },
+      "firestone": {
+        "id": "firestone",
+        "name": "Piedra Fuego",
+        "type": "evolution",
+        "description": "Una piedra roja como las llamas. Hace evolucionar a ciertos Pokémon.",
+        "sellable": true,
+        "buy_price": 2100,
+        "sell_price": 1050,
+        "stackable": 99,
+        "evolves": [
+          "Vulpix",
+          "Growlithe",
+          "Eevee"
+        ]
+      },
+      "waterstone": {
+        "id": "waterstone",
+        "name": "Piedra Agua",
+        "type": "evolution",
+        "description": "Una piedra azul como el agua. Hace evolucionar a ciertos Pokémon.",
+        "sellable": true,
+        "buy_price": 2100,
+        "sell_price": 1050,
+        "stackable": 99,
+        "evolves": [
+          "Poliwhirl",
+          "Shellder",
+          "Staryu",
+          "Eevee"
+        ]
+      },
+      "leafstone": {
+        "id": "leafstone",
+        "name": "Piedra Hoja",
+        "type": "evolution",
+        "description": "Una piedra verde como las hojas. Hace evolucionar a ciertos Pokémon.",
+        "sellable": true,
+        "buy_price": 2100,
+        "sell_price": 1050,
+        "stackable": 99,
+        "evolves": [
+          "Gloom",
+          "Weepinbell",
+          "Exeggcute"
+        ]
+      },
+      "moonstone": {
+        "id": "moonstone",
+        "name": "Piedra Lunar",
+        "type": "evolution",
+        "description": "Una piedra pálida que brilla como la luna. Hace evolucionar a ciertos Pokémon.",
+        "sellable": true,
+        "buy_price": 2100,
+        "sell_price": 1050,
+        "stackable": 99,
+        "evolves": [
+          "Nidorina",
+          "Nidorino",
+          "Clefairy",
+          "Jigglypuff"
+        ]
+      }
+    },
+    "special_items": {
+      "rare_candy": {
+        "id": "rare_candy",
+        "name": "Caramelo Raro",
+        "type": "experience",
+        "description": "Un caramelo misterioso que hace subir de nivel a un Pokémon.",
+        "sellable": true,
+        "buy_price": 4800,
+        "sell_price": 2400,
+        "stackable": 99,
+        "effect": "level_up"
+      },
+      "pp_up": {
+        "id": "pp_up",
+        "name": "Más PP",
+        "type": "stat_boost",
+        "description": "Aumenta permanentemente los PP máximos de un movimiento seleccionado.",
+        "sellable": true,
+        "buy_price": 9800,
+        "sell_price": 4900,
+        "stackable": 99,
+        "effect": "pp_max_increase"
+      },
+      "escape_rope": {
+        "id": "escape_rope",
+        "name": "Cuerda Huida",
+        "type": "utility",
+        "description": "Una cuerda larga y resistente para escapar de cuevas y mazmorras.",
+        "sellable": true,
+        "buy_price": 550,
+        "sell_price": 275,
+        "stackable": 99
+      },
+      "repel": {
+        "id": "repel",
+        "name": "Repelente",
+        "type": "utility",
+        "description": "Evita encuentros con Pokémon débiles durante 100 pasos.",
+        "sellable": true,
+        "buy_price": 350,
+        "sell_price": 175,
+        "stackable": 99,
+        "effect": "repel_weak",
+        "duration": 100
+      },
+      "super_repel": {
+        "id": "super_repel",
+        "name": "Súper Repelente",
+        "type": "utility",
+        "description": "Evita encuentros con Pokémon débiles durante 200 pasos.",
+        "sellable": true,
+        "buy_price": 500,
+        "sell_price": 250,
+        "stackable": 99,
+        "effect": "repel_weak",
+        "duration": 200
+      },
+      "max_repel": {
+        "id": "max_repel",
+        "name": "Máx. Repelente",
+        "type": "utility",
+        "description": "Evita encuentros con Pokémon débiles durante 250 pasos.",
+        "sellable": true,
+        "buy_price": 700,
+        "sell_price": 350,
+        "stackable": 99,
+        "effect": "repel_weak",
+        "duration": 250
+      }
+    },
+    "technical_machines": {
+      "tm34": {
+        "id": "tm34",
+        "name": "MT34",
+        "type": "tm",
+        "description": "Enseña el movimiento Bofetón Lodo a un Pokémon. Úsalo una vez.",
+        "sellable": true,
+        "buy_price": 3000,
+        "sell_price": 1500,
+        "stackable": 99,
+        "move": "Bofetón Lodo"
+      },
+      "tm11": {
+        "id": "tm11",
+        "name": "MT11",
+        "type": "tm",
+        "description": "Enseña el movimiento Lluvia a un Pokémon. Úsalo una vez.",
+        "sellable": true,
+        "buy_price": 3000,
+        "sell_price": 1500,
+        "stackable": 99,
+        "move": "Lluvia"
+      },
+      "tm04": {
+        "id": "tm04",
+        "name": "MT04",
+        "type": "tm",
+        "description": "Enseña el movimiento Fuerza a un Pokémon. Úsalo una vez.",
+        "sellable": true,
+        "buy_price": 3000,
+        "sell_price": 1500,
+        "stackable": 99,
+        "move": "Fuerza"
+      },
+      "tm24": {
+        "id": "tm24",
+        "name": "MT24",
+        "type": "tm",
+        "description": "Enseña el movimiento Rayo a un Pokémon. Úsalo una vez.",
+        "sellable": true,
+        "buy_price": 3000,
+        "sell_price": 1500,
+        "stackable": 99,
+        "move": "Rayo"
+      },
+      "tm27": {
+        "id": "tm27",
+        "name": "MT27",
+        "type": "tm",
+        "description": "Enseña el movimiento Fissura a un Pokémon. Úsalo una vez.",
+        "sellable": true,
+        "buy_price": 3000,
+        "sell_price": 1500,
+        "stackable": 99,
+        "move": "Fissura"
+      }
+    },
+    "hidden_machines": {
+      "hm01": {
+        "id": "hm01",
+        "name": "MO01",
+        "type": "hm",
+        "description": "Enseña Cortar a un Pokémon. Puede usarse fuera de combate para cortar árboles pequeños.",
+        "sellable": false,
+        "stackable": 1,
+        "move": "Corte",
+        "field_effect": "cut_trees",
+        "requirements": [
+          "badge_boulder"
+        ]
+      },
+      "hm02": {
+        "id": "hm02",
+        "name": "MO02",
+        "type": "hm",
+        "description": "Enseña Vuelo a un Pokémon. Puede usarse para viajar a ciudades visitadas.",
+        "sellable": false,
+        "stackable": 1,
+        "move": "Vuelo",
+        "field_effect": "fly",
+        "requirements": [
+          "badge_thunder"
+        ]
+      },
+      "hm03": {
+        "id": "hm03",
+        "name": "MO03",
+        "type": "hm",
+        "description": "Enseña Surf a un Pokémon. Puede usarse para navegar por el agua.",
+        "sellable": false,
+        "stackable": 1,
+        "move": "Surf",
+        "field_effect": "surf",
+        "requirements": [
+          "badge_cascade"
+        ]
+      },
+      "hm05": {
+        "id": "hm05",
+        "name": "MO05",
+        "type": "hm",
+        "description": "Enseña Destello a un Pokémon. Puede usarse para iluminar cuevas oscuras.",
+        "sellable": false,
+        "stackable": 1,
+        "move": "Destello",
+        "field_effect": "light_caves",
+        "requirements": []
+      }
+    },
+    "key_items": {
+      "bicycle": {
+        "id": "bicycle",
+        "name": "Bicicleta",
+        "type": "key_item",
+        "description": "Una bicicleta de carreras que te permite moverte mucho más rápido.",
+        "sellable": false,
+        "stackable": 1
+      },
+      "town_map": {
+        "id": "town_map",
+        "name": "Mapa",
+        "type": "key_item",
+        "description": "Un mapa detallado de la región de Kanto.",
+        "sellable": false,
+        "stackable": 1
+      },
+      "pokedex": {
+        "id": "pokedex",
+        "name": "Pokédex",
+        "type": "key_item",
+        "description": "Una enciclopedia electrónica que registra información sobre los Pokémon encontrados.",
+        "sellable": false,
+        "stackable": 1
+      },
+      "old_rod": {
+        "id": "old_rod",
+        "name": "Caña Vieja",
+        "type": "key_item",
+        "description": "Una caña de pescar vieja. Puedes pescar Pokémon en el agua.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "fish"
+      },
+      "good_rod": {
+        "id": "good_rod",
+        "name": "Caña Buena",
+        "type": "key_item",
+        "description": "Una caña de pescar de buena calidad. Atrae Pokémon más interesantes.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "fish_better"
+      },
+      "super_rod": {
+        "id": "super_rod",
+        "name": "Súper Caña",
+        "type": "key_item",
+        "description": "La mejor caña de pescar. Atrae los Pokémon más raros.",
+        "sellable": false,
+        "stackable": 1,
+        "effect": "fish_best"
+      }
+    }
+  },
+  "item_categories": {
+    "badges": [
+      "badge_boulder",
+      "badge_cascade",
+      "badge_marsh",
+      "badge_thunder",
+      "badge_earth"
+    ],
+    "pokeballs": [
+      "pokeball",
+      "greatball",
+      "ultraball",
+      "masterball",
+      "safariball"
+    ],
+    "healing": [
+      "potion",
+      "superpotion",
+      "hyperpotion",
+      "maxpotion"
+    ],
+    "status_healing": [
+      "antidote",
+      "burnheal",
+      "iceheal",
+      "awakening",
+      "paralyzeheal",
+      "fullheal"
+    ],
+    "evolution": [
+      "thunderstone",
+      "firestone",
+      "waterstone",
+      "leafstone",
+      "moonstone"
+    ],
+    "utility": [
+      "escape_rope",
+      "repel",
+      "super_repel",
+      "max_repel"
+    ],
+    "tms": [
+      "tm34",
+      "tm11",
+      "tm04",
+      "tm24",
+      "tm27"
+    ],
+    "hms": [
+      "hm01",
+      "hm02",
+      "hm03",
+      "hm05"
+    ],
+    "key_items": [
+      "bicycle",
+      "town_map",
+      "pokedex",
+      "old_rod",
+      "good_rod",
+      "super_rod",
+      "hall_of_fame_access"
+    ],
+    "special": [
+      "rare_candy",
+      "pp_up",
+      "champion_trophy"
+    ]
+  },
+  "shop_inventories": {
+    "pokemart_basic": {
+      "name": "Poké Mart Básico",
+      "items": [
+        "pokeball",
+        "potion",
+        "antidote",
+        "paralyzeheal",
+        "awakening",
+        "burnheal",
+        "iceheal",
+        "escape_rope",
+        "repel"
+      ]
+    },
+    "pokemart_advanced": {
+      "name": "Poké Mart Avanzado",
+      "items": [
+        "pokeball",
+        "greatball",
+        "potion",
+        "superpotion",
+        "antidote",
+        "paralyzeheal",
+        "awakening",
+        "burnheal",
+        "iceheal",
+        "fullheal",
+        "escape_rope",
+        "repel",
+        "super_repel"
+      ]
+    },
+    "pokemart_elite": {
+      "name": "Poké Mart Élite",
+      "items": [
+        "pokeball",
+        "greatball",
+        "ultraball",
+        "potion",
+        "superpotion",
+        "hyperpotion",
+        "antidote",
+        "paralyzeheal",
+        "awakening",
+        "burnheal",
+        "iceheal",
+        "fullheal",
+        "escape_rope",
+        "repel",
+        "super_repel",
+        "max_repel",
+        "rare_candy"
+      ]
+    },
+    "department_store": {
+      "name": "Grandes Almacenes",
+      "items": [
+        "pokeball",
+        "greatball",
+        "ultraball",
+        "potion",
+        "superpotion",
+        "hyperpotion",
+        "maxpotion",
+        "antidote",
+        "paralyzeheal",
+        "awakening",
+        "burnheal",
+        "iceheal",
+        "fullheal",
+        "escape_rope",
+        "repel",
+        "super_repel",
+        "max_repel",
+        "thunderstone",
+        "firestone",
+        "waterstone",
+        "leafstone",
+        "moonstone",
+        "tm34",
+        "tm11",
+        "tm04",
+        "tm24",
+        "tm27"
+      ]
+    }
+  }
+}

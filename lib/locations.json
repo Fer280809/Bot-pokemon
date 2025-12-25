@@ -1,0 +1,2715 @@
+{
+  "pueblo_paleta": {
+    "name": "Pueblo Paleta",
+    "description": "Un pequeño y tranquilo pueblo rodeado de naturaleza. Es donde comienzas tu aventura Pokémon.",
+    "type": "town",
+    "connections": [
+      "ruta_1",
+      "ruta_21"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_1": {
+    "name": "Ruta 1",
+    "description": "Un camino corto y sencillo que conecta Pueblo Paleta con Pueblo Verde. Ideal para entrenadores novatos.",
+    "type": "route",
+    "connections": [
+      "pueblo_paleta",
+      "pueblo_verde"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          2,
+          5
+        ],
+        "rate": 50
+      },
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          2,
+          4
+        ],
+        "rate": 40
+      },
+      {
+        "id": 10,
+        "name": "Caterpie",
+        "level": [
+          2,
+          3
+        ],
+        "rate": 5
+      },
+      {
+        "id": 13,
+        "name": "Weedle",
+        "level": [
+          2,
+          3
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "pueblo_verde": {
+    "name": "Pueblo Verde",
+    "description": "Un pueblo un poco más grande donde los entrenadores se preparan para su primer gimnasio.",
+    "type": "town",
+    "connections": [
+      "ruta_1",
+      "ruta_2",
+      "ruta_22"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "ruta_22": {
+    "name": "Ruta 22",
+    "description": "Un camino que lleva a la Liga Pokémon. Los entrenadores fuertes entrenan aquí.",
+    "type": "route",
+    "connections": [
+      "pueblo_verde",
+      "liga_pokemon_entrada"
+    ],
+    "requirements": [
+      "badge_earth"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          3,
+          5
+        ],
+        "rate": 30
+      },
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          3,
+          5
+        ],
+        "rate": 30
+      },
+      {
+        "id": 56,
+        "name": "Mankey",
+        "level": [
+          4,
+          6
+        ],
+        "rate": 30
+      },
+      {
+        "id": 27,
+        "name": "Sandshrew",
+        "level": [
+          4,
+          6
+        ],
+        "rate": 10
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_2": {
+    "name": "Ruta 2",
+    "description": "Un camino que atraviesa un pequeño bosque. Conecta Pueblo Verde con Ciudad Plateada.",
+    "type": "route",
+    "connections": [
+      "pueblo_verde",
+      "ciudad_plateada",
+      "bosque_verde"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 10,
+        "name": "Caterpie",
+        "level": [
+          3,
+          5
+        ],
+        "rate": 25
+      },
+      {
+        "id": 13,
+        "name": "Weedle",
+        "level": [
+          3,
+          5
+        ],
+        "rate": 25
+      },
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          4,
+          6
+        ],
+        "rate": 25
+      },
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          4,
+          6
+        ],
+        "rate": 20
+      },
+      {
+        "id": 25,
+        "name": "Pikachu",
+        "level": [
+          5,
+          7
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "bosque_verde": {
+    "name": "Bosque Verde",
+    "description": "Un denso bosque lleno de Pokémon tipo Bicho. Es fácil perderse aquí.",
+    "type": "dungeon",
+    "connections": [
+      "ruta_2"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 10,
+        "name": "Caterpie",
+        "level": [
+          4,
+          6
+        ],
+        "rate": 30
+      },
+      {
+        "id": 13,
+        "name": "Weedle",
+        "level": [
+          4,
+          6
+        ],
+        "rate": 30
+      },
+      {
+        "id": 11,
+        "name": "Metapod",
+        "level": [
+          5,
+          7
+        ],
+        "rate": 15
+      },
+      {
+        "id": 14,
+        "name": "Kakuna",
+        "level": [
+          5,
+          7
+        ],
+        "rate": 15
+      },
+      {
+        "id": 25,
+        "name": "Pikachu",
+        "level": [
+          5,
+          7
+        ],
+        "rate": 10
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_plateada": {
+    "name": "Ciudad Plateada",
+    "description": "Una ciudad histórica conocida por sus fósiles y su gimnasio de tipo Roca.",
+    "type": "city",
+    "connections": [
+      "ruta_2",
+      "ruta_3",
+      "cueva_plateada"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "gimnasio_plateada": {
+    "name": "Gimnasio de Ciudad Plateada",
+    "description": "Gimnasio de tipo Roca. Brock es el líder, conocido por su resistencia.",
+    "type": "gym",
+    "connections": [
+      "ciudad_plateada"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [
+      {
+        "id": "camper_liam",
+        "name": "Campista Liam",
+        "rate": 100,
+        "mandatory": true
+      },
+      {
+        "id": "hiker_marcus",
+        "name": "Montañero Marcus",
+        "rate": 100,
+        "mandatory": true
+      },
+      {
+        "id": "brock",
+        "name": "Brock",
+        "rate": 100,
+        "leader": true,
+        "badge_reward": "badge_boulder"
+      }
+    ],
+    "services": {
+      "healing": false,
+      "shop": false
+    }
+  },
+  "cueva_plateada": {
+    "name": "Cueva Plateada",
+    "description": "Una cueva oscura llena de Pokémon terrestres. Se necesita Flash para ver bien.",
+    "type": "cave",
+    "connections": [
+      "ciudad_plateada"
+    ],
+    "requirements": [
+      "hm05"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 74,
+        "name": "Geodude",
+        "level": [
+          6,
+          8
+        ],
+        "rate": 30
+      },
+      {
+        "id": 41,
+        "name": "Zubat",
+        "level": [
+          6,
+          8
+        ],
+        "rate": 30
+      },
+      {
+        "id": 27,
+        "name": "Sandshrew",
+        "level": [
+          7,
+          9
+        ],
+        "rate": 20
+      },
+      {
+        "id": 50,
+        "name": "Diglett",
+        "level": [
+          7,
+          9
+        ],
+        "rate": 15
+      },
+      {
+        "id": 35,
+        "name": "Clefairy",
+        "level": [
+          8,
+          10
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [
+      {
+        "id": "hiker_franklin",
+        "name": "Montañero Franklin",
+        "rate": 80
+      }
+    ],
+    "dark_area": true,
+    "services": {}
+  },
+  "ruta_3": {
+    "name": "Ruta 3",
+    "description": "Un camino montañoso que lleva a Ciudad Celeste. Muchos entrenadores jóvenes practican aquí.",
+    "type": "route",
+    "connections": [
+      "ciudad_plateada",
+      "ciudad_celeste"
+    ],
+    "requirements": [
+      "badge_boulder"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          6,
+          8
+        ],
+        "rate": 25
+      },
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          6,
+          8
+        ],
+        "rate": 25
+      },
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          7,
+          9
+        ],
+        "rate": 25
+      },
+      {
+        "id": 56,
+        "name": "Mankey",
+        "level": [
+          7,
+          9
+        ],
+        "rate": 20
+      },
+      {
+        "id": 39,
+        "name": "Jigglypuff",
+        "level": [
+          8,
+          10
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_celeste": {
+    "name": "Ciudad Celeste",
+    "description": "Una ciudad costera famosa por sus cascadas y su gimnasio de tipo Agua.",
+    "type": "city",
+    "connections": [
+      "ruta_3",
+      "ruta_4",
+      "ruta_5",
+      "ruta_24",
+      "ruta_25"
+    ],
+    "requirements": [
+      "badge_boulder"
+    ],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "gimnasio_celeste": {
+    "name": "Gimnasio de Ciudad Celeste",
+    "description": "Gimnasio de tipo Agua. Misty es la líder, conocida por su temperamento.",
+    "type": "gym",
+    "connections": [
+      "ciudad_celeste"
+    ],
+    "requirements": [
+      "badge_boulder"
+    ],
+    "wild_pokemon": [],
+    "trainers": [
+      {
+        "id": "misty",
+        "name": "Misty",
+        "rate": 100,
+        "leader": true,
+        "badge_reward": "badge_cascade"
+      }
+    ],
+    "services": {
+      "healing": false,
+      "shop": false
+    }
+  },
+  "ruta_4": {
+    "name": "Ruta 4",
+    "description": "Un camino desértico que conecta Ciudad Celeste con el Monte Moon.",
+    "type": "route",
+    "connections": [
+      "ciudad_celeste",
+      "monte_moon"
+    ],
+    "requirements": [
+      "badge_boulder"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          10,
+          12
+        ],
+        "rate": 30
+      },
+      {
+        "id": 27,
+        "name": "Sandshrew",
+        "level": [
+          10,
+          12
+        ],
+        "rate": 30
+      },
+      {
+        "id": 23,
+        "name": "Ekans",
+        "level": [
+          11,
+          13
+        ],
+        "rate": 30
+      },
+      {
+        "id": 56,
+        "name": "Mankey",
+        "level": [
+          11,
+          13
+        ],
+        "rate": 10
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "monte_moon": {
+    "name": "Monte Moon",
+    "description": "Una enorme montaña llena de cuevas. Es famosa por los fósiles y los Clefairy.",
+    "type": "cave",
+    "connections": [
+      "ruta_4",
+      "ruta_3_salida"
+    ],
+    "requirements": [
+      "badge_boulder"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 41,
+        "name": "Zubat",
+        "level": [
+          8,
+          10
+        ],
+        "rate": 40
+      },
+      {
+        "id": 74,
+        "name": "Geodude",
+        "level": [
+          8,
+          10
+        ],
+        "rate": 30
+      },
+      {
+        "id": 35,
+        "name": "Clefairy",
+        "level": [
+          9,
+          11
+        ],
+        "rate": 15
+      },
+      {
+        "id": 46,
+        "name": "Paras",
+        "level": [
+          9,
+          11
+        ],
+        "rate": 10
+      },
+      {
+        "id": 95,
+        "name": "Onix",
+        "level": [
+          10,
+          12
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_3_salida": {
+    "name": "Salida del Monte Moon",
+    "description": "La salida este del Monte Moon que lleva a Ciudad Carmín.",
+    "type": "route",
+    "connections": [
+      "monte_moon",
+      "ciudad_carmin"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          10,
+          13
+        ],
+        "rate": 35
+      },
+      {
+        "id": 27,
+        "name": "Sandshrew",
+        "level": [
+          10,
+          13
+        ],
+        "rate": 35
+      },
+      {
+        "id": 23,
+        "name": "Ekans",
+        "level": [
+          11,
+          14
+        ],
+        "rate": 25
+      },
+      {
+        "id": 96,
+        "name": "Drowzee",
+        "level": [
+          12,
+          15
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_carmin": {
+    "name": "Ciudad Carmín",
+    "description": "Una gran ciudad industrial con la Torre Pokémon y el segundo gimnasio.",
+    "type": "city",
+    "connections": [
+      "ruta_3_salida",
+      "ruta_5",
+      "ruta_6",
+      "ruta_8"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "gimnasio_carmin": {
+    "name": "Gimnasio de Ciudad Carmín",
+    "description": "Gimnasio de tipo Fantasma. Sabrina es la líder, conocida por sus poderes psíquicos.",
+    "type": "gym",
+    "connections": [
+      "ciudad_carmin"
+    ],
+    "requirements": [
+      "badge_cascade"
+    ],
+    "wild_pokemon": [],
+    "trainers": [
+      {
+        "id": "sabrina",
+        "name": "Sabrina",
+        "rate": 100,
+        "leader": true,
+        "badge_reward": "badge_marsh"
+      }
+    ],
+    "services": {
+      "healing": false,
+      "shop": false
+    }
+  },
+  "torre_pokemon": {
+    "name": "Torre Pokémon",
+    "description": "Una torre de 7 pisos que sirve como cementerio para Pokémon. Está llena de entrenadores de tipo Fantasma.",
+    "type": "dungeon",
+    "connections": [
+      "ciudad_carmin"
+    ],
+    "requirements": [
+      "hm05"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 41,
+        "name": "Zubat",
+        "level": [
+          15,
+          18
+        ],
+        "rate": 40
+      },
+      {
+        "id": 92,
+        "name": "Gastly",
+        "level": [
+          16,
+          19
+        ],
+        "rate": 40
+      },
+      {
+        "id": 93,
+        "name": "Haunter",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 15
+      },
+      {
+        "id": 104,
+        "name": "Cubone",
+        "level": [
+          17,
+          20
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "ruta_5": {
+    "name": "Ruta 5",
+    "description": "Un camino que conecta Ciudad Carmín con Ciudad Azafrán. Hay una casa de descanso en el camino.",
+    "type": "route",
+    "connections": [
+      "ciudad_carmin",
+      "ciudad_azafran"
+    ],
+    "requirements": [
+      "badge_cascade"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          13,
+          16
+        ],
+        "rate": 30
+      },
+      {
+        "id": 43,
+        "name": "Oddish",
+        "level": [
+          13,
+          16
+        ],
+        "rate": 30
+      },
+      {
+        "id": 69,
+        "name": "Bellsprout",
+        "level": [
+          14,
+          17
+        ],
+        "rate": 30
+      },
+      {
+        "id": 96,
+        "name": "Drowzee",
+        "level": [
+          15,
+          18
+        ],
+        "rate": 10
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_azafran": {
+    "name": "Ciudad Azafrán",
+    "description": "La ciudad más grande de Kanto, famosa por la Torre Silph y su gimnasio de tipo Psíquico.",
+    "type": "metropolis",
+    "connections": [
+      "ruta_5",
+      "ruta_6",
+      "ruta_7",
+      "ruta_8"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "ruta_6": {
+    "name": "Ruta 6",
+    "description": "Un camino con muchos cuerpos de agua, conecta Ciudad Azafrán con Ciudad Celeste.",
+    "type": "route",
+    "connections": [
+      "ciudad_azafran",
+      "ciudad_celeste"
+    ],
+    "requirements": [
+      "badge_cascade"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          13,
+          16
+        ],
+        "rate": 25
+      },
+      {
+        "id": 17,
+        "name": "Pidgeotto",
+        "level": [
+          15,
+          18
+        ],
+        "rate": 10
+      },
+      {
+        "id": 43,
+        "name": "Oddish",
+        "level": [
+          13,
+          16
+        ],
+        "rate": 25
+      },
+      {
+        "id": 69,
+        "name": "Bellsprout",
+        "level": [
+          14,
+          17
+        ],
+        "rate": 25
+      },
+      {
+        "id": 118,
+        "name": "Goldeen",
+        "level": [
+          15,
+          18
+        ],
+        "rate": 15
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_7": {
+    "name": "Ruta 7",
+    "description": "Un camino urbano que conecta Ciudad Azafrán con Ciudad Carmín.",
+    "type": "route",
+    "connections": [
+      "ciudad_azafran",
+      "ciudad_carmin"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          16,
+          19
+        ],
+        "rate": 30
+      },
+      {
+        "id": 20,
+        "name": "Raticate",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 10
+      },
+      {
+        "id": 52,
+        "name": "Meowth",
+        "level": [
+          16,
+          19
+        ],
+        "rate": 30
+      },
+      {
+        "id": 53,
+        "name": "Persian",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 10
+      },
+      {
+        "id": 39,
+        "name": "Jigglypuff",
+        "level": [
+          17,
+          20
+        ],
+        "rate": 20
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_8": {
+    "name": "Ruta 8",
+    "description": "Un camino que conecta Ciudad Azafrán con Ciudad Lavanda. Hay muchos entrenadores.",
+    "type": "route",
+    "connections": [
+      "ciudad_azafran",
+      "ciudad_lavanda"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 30
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          20,
+          23
+        ],
+        "rate": 5
+      },
+      {
+        "id": 23,
+        "name": "Ekans",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 30
+      },
+      {
+        "id": 27,
+        "name": "Sandshrew",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 30
+      },
+      {
+        "id": 96,
+        "name": "Drowzee",
+        "level": [
+          19,
+          22
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_lavanda": {
+    "name": "Ciudad Lavanda",
+    "description": "Una ciudad tranquila conocida por su Torre Pokémon y la Casa de los Pokémon.",
+    "type": "town",
+    "connections": [
+      "ruta_8",
+      "ruta_10",
+      "ruta_12"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "ruta_10": {
+    "name": "Ruta 10",
+    "description": "Un camino que lleva a la Central Energía y a Ciudad Azulona.",
+    "type": "route",
+    "connections": [
+      "ciudad_lavanda",
+      "ciudad_azulona",
+      "central_energia"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          16,
+          19
+        ],
+        "rate": 30
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 5
+      },
+      {
+        "id": 100,
+        "name": "Voltorb",
+        "level": [
+          17,
+          20
+        ],
+        "rate": 30
+      },
+      {
+        "id": 81,
+        "name": "Magnemite",
+        "level": [
+          17,
+          20
+        ],
+        "rate": 30
+      },
+      {
+        "id": 125,
+        "name": "Electabuzz",
+        "level": [
+          20,
+          23
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_azulona": {
+    "name": "Ciudad Azulona",
+    "description": "Una ciudad portuaria con un famoso gimnasio de tipo Eléctrico y el SS Anne.",
+    "type": "city",
+    "connections": [
+      "ruta_10",
+      "ruta_11",
+      "ruta_12_alternativo"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "gimnasio_azulona": {
+    "name": "Gimnasio de Ciudad Azulona",
+    "description": "Gimnasio de tipo Eléctrico. Lt. Surge es el líder, un veterano de guerra.",
+    "type": "gym",
+    "connections": [
+      "ciudad_azulona"
+    ],
+    "requirements": [
+      "badge_marsh"
+    ],
+    "wild_pokemon": [],
+    "trainers": [
+      {
+        "id": "lt_surge",
+        "name": "Teniente Surge",
+        "rate": 100,
+        "leader": true,
+        "badge_reward": "badge_thunder"
+      }
+    ],
+    "services": {
+      "healing": false,
+      "shop": false
+    }
+  },
+  "ruta_11": {
+    "name": "Ruta 11",
+    "description": "Un camino que conecta Ciudad Azulona con Ciudad Fucsia.",
+    "type": "route",
+    "connections": [
+      "ciudad_azulona",
+      "ciudad_fucsia"
+    ],
+    "requirements": [
+      "badge_thunder"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          17,
+          20
+        ],
+        "rate": 30
+      },
+      {
+        "id": 20,
+        "name": "Raticate",
+        "level": [
+          19,
+          22
+        ],
+        "rate": 10
+      },
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          17,
+          20
+        ],
+        "rate": 30
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          19,
+          22
+        ],
+        "rate": 5
+      },
+      {
+        "id": 96,
+        "name": "Drowzee",
+        "level": [
+          18,
+          21
+        ],
+        "rate": 20
+      },
+      {
+        "id": 97,
+        "name": "Hypno",
+        "level": [
+          20,
+          23
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ciudad_fucsia": {
+    "name": "Ciudad Fucsia",
+    "description": "Una ciudad famosa por su Safari Zone y su gimnasio de tipo Veneno.",
+    "type": "city",
+    "connections": [
+      "ruta_11",
+      "ruta_12",
+      "ruta_13",
+      "ruta_14",
+      "ruta_15",
+      "safari_zone"
+    ],
+    "requirements": [],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "safari_zone": {
+    "name": "Safari Zone",
+    "description": "Una enorme reserva natural donde puedes capturar Pokémon raros. Tienes tiempo limitado.",
+    "type": "special",
+    "connections": [
+      "ciudad_fucsia"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 29,
+        "name": "Nidoran♀",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 15
+      },
+      {
+        "id": 30,
+        "name": "Nidorina",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 5
+      },
+      {
+        "id": 32,
+        "name": "Nidoran♂",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 15
+      },
+      {
+        "id": 33,
+        "name": "Nidorino",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 5
+      },
+      {
+        "id": 113,
+        "name": "Chansey",
+        "level": [
+          23,
+          26
+        ],
+        "rate": 4
+      },
+      {
+        "id": 128,
+        "name": "Tauros",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 4
+      },
+      {
+        "id": 115,
+        "name": "Kangaskhan",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 4
+      },
+      {
+        "id": 111,
+        "name": "Rhyhorn",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 15
+      },
+      {
+        "id": 46,
+        "name": "Paras",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 20
+      },
+      {
+        "id": 102,
+        "name": "Exeggcute",
+        "level": [
+          23,
+          26
+        ],
+        "rate": 15
+      },
+      {
+        "id": 48,
+        "name": "Venonat",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 20
+      },
+      {
+        "id": 123,
+        "name": "Scyther",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 4
+      },
+      {
+        "id": 127,
+        "name": "Pinsir",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 4
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "ruta_12": {
+    "name": "Ruta 12",
+    "description": "Una ruta con muchos cuerpos de agua, ideal para pescar.",
+    "type": "route",
+    "connections": [
+      "ciudad_lavanda",
+      "ruta_13"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 43,
+        "name": "Oddish",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 25
+      },
+      {
+        "id": 69,
+        "name": "Bellsprout",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 25
+      },
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          23,
+          26
+        ],
+        "rate": 15
+      },
+      {
+        "id": 17,
+        "name": "Pidgeotto",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 10
+      },
+      {
+        "id": 60,
+        "name": "Poliwag",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 15
+      },
+      {
+        "id": 118,
+        "name": "Goldeen",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 10
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_13": {
+    "name": "Ruta 13",
+    "description": "Una ruta con muchos entrenadores y áreas de hierba alta.",
+    "type": "route",
+    "connections": [
+      "ruta_12",
+      "ruta_14"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 43,
+        "name": "Oddish",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 20
+      },
+      {
+        "id": 69,
+        "name": "Bellsprout",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 20
+      },
+      {
+        "id": 16,
+        "name": "Pidgey",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 15
+      },
+      {
+        "id": 17,
+        "name": "Pidgeotto",
+        "level": [
+          27,
+          30
+        ],
+        "rate": 10
+      },
+      {
+        "id": 48,
+        "name": "Venonat",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 20
+      },
+      {
+        "id": 49,
+        "name": "Venomoth",
+        "level": [
+          26,
+          29
+        ],
+        "rate": 5
+      },
+      {
+        "id": 132,
+        "name": "Ditto",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 10
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_14": {
+    "name": "Ruta 14",
+    "description": "Una ruta que lleva a Ciudad Fucsia, con muchos cuerpos de agua.",
+    "type": "route",
+    "connections": [
+      "ruta_13",
+      "ruta_15"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 43,
+        "name": "Oddish",
+        "level": [
+          26,
+          29
+        ],
+        "rate": 20
+      },
+      {
+        "id": 44,
+        "name": "Gloom",
+        "level": [
+          28,
+          31
+        ],
+        "rate": 10
+      },
+      {
+        "id": 69,
+        "name": "Bellsprout",
+        "level": [
+          26,
+          29
+        ],
+        "rate": 20
+      },
+      {
+        "id": 70,
+        "name": "Weepinbell",
+        "level": [
+          28,
+          31
+        ],
+        "rate": 10
+      },
+      {
+        "id": 48,
+        "name": "Venonat",
+        "level": [
+          26,
+          29
+        ],
+        "rate": 20
+      },
+      {
+        "id": 49,
+        "name": "Venomoth",
+        "level": [
+          28,
+          31
+        ],
+        "rate": 5
+      },
+      {
+        "id": 132,
+        "name": "Ditto",
+        "level": [
+          27,
+          30
+        ],
+        "rate": 15
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_15": {
+    "name": "Ruta 15",
+    "description": "La última ruta antes de Ciudad Fucsia desde el oeste.",
+    "type": "route",
+    "connections": [
+      "ruta_14",
+      "ciudad_fucsia"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 43,
+        "name": "Oddish",
+        "level": [
+          28,
+          31
+        ],
+        "rate": 20
+      },
+      {
+        "id": 44,
+        "name": "Gloom",
+        "level": [
+          30,
+          33
+        ],
+        "rate": 10
+      },
+      {
+        "id": 69,
+        "name": "Bellsprout",
+        "level": [
+          28,
+          31
+        ],
+        "rate": 20
+      },
+      {
+        "id": 70,
+        "name": "Weepinbell",
+        "level": [
+          30,
+          33
+        ],
+        "rate": 10
+      },
+      {
+        "id": 113,
+        "name": "Chansey",
+        "level": [
+          29,
+          32
+        ],
+        "rate": 5
+      },
+      {
+        "id": 132,
+        "name": "Ditto",
+        "level": [
+          29,
+          32
+        ],
+        "rate": 15
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_16": {
+    "name": "Ruta 16",
+    "description": "Una ruta ciclista que conecta Ciudad Celeste con Ciudad Carmín.",
+    "type": "route",
+    "connections": [
+      "ciudad_celeste",
+      "ciudad_carmin"
+    ],
+    "requirements": [],
+    "wild_pokemon": [
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          20,
+          23
+        ],
+        "rate": 30
+      },
+      {
+        "id": 20,
+        "name": "Raticate",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 10
+      },
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          20,
+          23
+        ],
+        "rate": 30
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_17": {
+    "name": "Ruta 17",
+    "description": "La ruta ciclista, un camino largo ideal para bicicletas.",
+    "type": "route",
+    "connections": [
+      "ruta_16",
+      "ruta_18"
+    ],
+    "requirements": [
+      "bicycle"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 30
+      },
+      {
+        "id": 20,
+        "name": "Raticate",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 10
+      },
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          22,
+          25
+        ],
+        "rate": 30
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 5
+      },
+      {
+        "id": 84,
+        "name": "Doduo",
+        "level": [
+          23,
+          26
+        ],
+        "rate": 20
+      },
+      {
+        "id": 85,
+        "name": "Dodrio",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_18": {
+    "name": "Ruta 18",
+    "description": "La última parte de la ruta ciclista, lleva a Ciudad Fucsia.",
+    "type": "route",
+    "connections": [
+      "ruta_17",
+      "ciudad_fucsia"
+    ],
+    "requirements": [
+      "bicycle"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 19,
+        "name": "Rattata",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 30
+      },
+      {
+        "id": 20,
+        "name": "Raticate",
+        "level": [
+          26,
+          29
+        ],
+        "rate": 10
+      },
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          24,
+          27
+        ],
+        "rate": 30
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          26,
+          29
+        ],
+        "rate": 5
+      },
+      {
+        "id": 84,
+        "name": "Doduo",
+        "level": [
+          25,
+          28
+        ],
+        "rate": 20
+      },
+      {
+        "id": 85,
+        "name": "Dodrio",
+        "level": [
+          27,
+          30
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_19": {
+    "name": "Ruta 19",
+    "description": "Una ruta acuática que requiere Surf. Conecta Ciudad Fucsia con las Islas Espuma.",
+    "type": "water",
+    "connections": [
+      "ciudad_fucsia",
+      "islas_espuma"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 72,
+        "name": "Tentacool",
+        "level": [
+          5,
+          40
+        ],
+        "rate": 60
+      },
+      {
+        "id": 73,
+        "name": "Tentacruel",
+        "level": [
+          15,
+          40
+        ],
+        "rate": 10
+      },
+      {
+        "id": 116,
+        "name": "Horsea",
+        "level": [
+          5,
+          40
+        ],
+        "rate": 30
+      },
+      {
+        "id": 90,
+        "name": "Shellder",
+        "level": [
+          5,
+          40
+        ],
+        "rate": 30
+      },
+      {
+        "id": 120,
+        "name": "Staryu",
+        "level": [
+          5,
+          40
+        ],
+        "rate": 30
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "islas_espuma": {
+    "name": "Islas Espuma",
+    "description": "Un archipiélago de pequeñas islas. La Isla 1 tiene una cueva con Articuno.",
+    "type": "island",
+    "connections": [
+      "ruta_19",
+      "ruta_20",
+      "cueva_hielo"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 72,
+        "name": "Tentacool",
+        "level": [
+          30,
+          35
+        ],
+        "rate": 40
+      },
+      {
+        "id": 73,
+        "name": "Tentacruel",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 10
+      },
+      {
+        "id": 86,
+        "name": "Seel",
+        "level": [
+          30,
+          35
+        ],
+        "rate": 30
+      },
+      {
+        "id": 90,
+        "name": "Shellder",
+        "level": [
+          30,
+          35
+        ],
+        "rate": 30
+      },
+      {
+        "id": 87,
+        "name": "Dewgong",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "cueva_hielo": {
+    "name": "Cueva de Hielo",
+    "description": "Una cueva helada en la Isla 4. Se necesita fuerza para mover las rocas.",
+    "type": "cave",
+    "connections": [
+      "islas_espuma"
+    ],
+    "requirements": [
+      "hm04"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 86,
+        "name": "Seel",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 40
+      },
+      {
+        "id": 87,
+        "name": "Dewgong",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 10
+      },
+      {
+        "id": 90,
+        "name": "Shellder",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 30
+      },
+      {
+        "id": 91,
+        "name": "Cloyster",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 5
+      },
+      {
+        "id": 124,
+        "name": "Jynx",
+        "level": [
+          33,
+          38
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "ruta_20": {
+    "name": "Ruta 20",
+    "description": "Otra ruta acuática que conecta las Islas Espuma con la Cueva Secreta.",
+    "type": "water",
+    "connections": [
+      "islas_espuma",
+      "cueva_secreta"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 72,
+        "name": "Tentacool",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 60
+      },
+      {
+        "id": 73,
+        "name": "Tentacruel",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 10
+      },
+      {
+        "id": 116,
+        "name": "Horsea",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 30
+      },
+      {
+        "id": 117,
+        "name": "Seadra",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 5
+      },
+      {
+        "id": 129,
+        "name": "Magikarp",
+        "level": [
+          5,
+          40
+        ],
+        "rate": 30
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "cueva_secreta": {
+    "name": "Cueva Secreta",
+    "description": "Una cueva oculta donde se dice que Mewtwo fue creado.",
+    "type": "cave",
+    "connections": [
+      "ruta_20"
+    ],
+    "requirements": [
+      "hm03",
+      "hm04"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 41,
+        "name": "Zubat",
+        "level": [
+          40,
+          45
+        ],
+        "rate": 30
+      },
+      {
+        "id": 42,
+        "name": "Golbat",
+        "level": [
+          42,
+          47
+        ],
+        "rate": 15
+      },
+      {
+        "id": 74,
+        "name": "Geodude",
+        "level": [
+          40,
+          45
+        ],
+        "rate": 20
+      },
+      {
+        "id": 75,
+        "name": "Graveler",
+        "level": [
+          42,
+          47
+        ],
+        "rate": 10
+      },
+      {
+        "id": 95,
+        "name": "Onix",
+        "level": [
+          41,
+          46
+        ],
+        "rate": 15
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "ruta_21": {
+    "name": "Ruta 21",
+    "description": "Una ruta acuática que conecta las Islas Espuma con Pueblo Paleta.",
+    "type": "water",
+    "connections": [
+      "islas_espuma",
+      "pueblo_paleta"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 72,
+        "name": "Tentacool",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 60
+      },
+      {
+        "id": 73,
+        "name": "Tentacruel",
+        "level": [
+          36,
+          41
+        ],
+        "rate": 10
+      },
+      {
+        "id": 129,
+        "name": "Magikarp",
+        "level": [
+          5,
+          40
+        ],
+        "rate": 40
+      },
+      {
+        "id": 54,
+        "name": "Psyduck",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 30
+      },
+      {
+        "id": 55,
+        "name": "Golduck",
+        "level": [
+          36,
+          41
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "ruta_23": {
+    "name": "Ruta 23",
+    "description": "El camino final hacia la Liga Pokémon. Está lleno de entrenadores fuertes.",
+    "type": "route",
+    "connections": [
+      "liga_pokemon_entrada",
+      "ciudad_verde"
+    ],
+    "requirements": [
+      "badge_earth"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 21,
+        "name": "Spearow",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 20
+      },
+      {
+        "id": 22,
+        "name": "Fearow",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 10
+      },
+      {
+        "id": 27,
+        "name": "Sandshrew",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 20
+      },
+      {
+        "id": 28,
+        "name": "Sandslash",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 10
+      },
+      {
+        "id": 56,
+        "name": "Mankey",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 20
+      },
+      {
+        "id": 57,
+        "name": "Primeape",
+        "level": [
+          34,
+          39
+        ],
+        "rate": 10
+      },
+      {
+        "id": 96,
+        "name": "Drowzee",
+        "level": [
+          33,
+          38
+        ],
+        "rate": 15
+      },
+      {
+        "id": 97,
+        "name": "Hypno",
+        "level": [
+          35,
+          40
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {
+      "center": false,
+      "shop": false,
+      "healing": false
+    }
+  },
+  "victory_road": {
+    "name": "Camino Victoria",
+    "description": "Una cueva que es la última prueba antes de la Liga Pokémon.",
+    "type": "cave",
+    "connections": [
+      "ruta_23",
+      "liga_pokemon"
+    ],
+    "requirements": [
+      "8_badges"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 74,
+        "name": "Geodude",
+        "level": [
+          38,
+          43
+        ],
+        "rate": 20
+      },
+      {
+        "id": 75,
+        "name": "Graveler",
+        "level": [
+          40,
+          45
+        ],
+        "rate": 15
+      },
+      {
+        "id": 95,
+        "name": "Onix",
+        "level": [
+          39,
+          44
+        ],
+        "rate": 20
+      },
+      {
+        "id": 66,
+        "name": "Machop",
+        "level": [
+          38,
+          43
+        ],
+        "rate": 15
+      },
+      {
+        "id": 67,
+        "name": "Machoke",
+        "level": [
+          40,
+          45
+        ],
+        "rate": 10
+      },
+      {
+        "id": 41,
+        "name": "Zubat",
+        "level": [
+          38,
+          43
+        ],
+        "rate": 10
+      },
+      {
+        "id": 42,
+        "name": "Golbat",
+        "level": [
+          40,
+          45
+        ],
+        "rate": 5
+      },
+      {
+        "id": 111,
+        "name": "Rhyhorn",
+        "level": [
+          39,
+          44
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "liga_pokemon": {
+    "name": "Liga Pokémon",
+    "description": "La cima del entrenamiento Pokémon. Aquí te enfrentarás al Alto Mando y al Campeón.",
+    "type": "elite",
+    "connections": [
+      "victory_road"
+    ],
+    "requirements": [
+      "8_badges"
+    ],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {}
+  },
+  "ciudad_verde": {
+    "name": "Ciudad Verde",
+    "description": "Una ciudad en la cima de una montaña con el último gimnasio de tipo Tierra.",
+    "type": "city",
+    "connections": [
+      "ruta_23"
+    ],
+    "requirements": [
+      "7_badges"
+    ],
+    "wild_pokemon": [],
+    "trainers": [],
+    "services": {
+      "center": true,
+      "shop": true,
+      "healing": true
+    }
+  },
+  "gimnasio_verde": {
+    "name": "Gimnasio de Ciudad Verde",
+    "description": "Gimnasio de tipo Tierra. Giovanni es el líder y jefe del Team Rocket.",
+    "type": "gym",
+    "connections": [
+      "ciudad_verde"
+    ],
+    "requirements": [
+      "7_badges"
+    ],
+    "wild_pokemon": [],
+    "trainers": [
+      {
+        "id": "giovanni",
+        "name": "Giovanni",
+        "rate": 100,
+        "leader": true,
+        "badge_reward": "badge_earth"
+      }
+    ],
+    "services": {
+      "healing": false,
+      "shop": false
+    }
+  },
+  "central_energia": {
+    "name": "Central de Energía",
+    "description": "Una planta de energía abandonada infestada de Pokémon eléctricos.",
+    "type": "dungeon",
+    "connections": [
+      "ruta_10"
+    ],
+    "requirements": [
+      "hm03"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 100,
+        "name": "Voltorb",
+        "level": [
+          22,
+          27
+        ],
+        "rate": 40
+      },
+      {
+        "id": 101,
+        "name": "Electrode",
+        "level": [
+          24,
+          29
+        ],
+        "rate": 10
+      },
+      {
+        "id": 81,
+        "name": "Magnemite",
+        "level": [
+          22,
+          27
+        ],
+        "rate": 40
+      },
+      {
+        "id": 82,
+        "name": "Magneton",
+        "level": [
+          24,
+          29
+        ],
+        "rate": 10
+      },
+      {
+        "id": 125,
+        "name": "Electabuzz",
+        "level": [
+          26,
+          31
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "seafoam_islands": {
+    "name": "Islas Espuma",
+    "description": "Un archipiélago de islas heladas. La cueva principal contiene a Articuno.",
+    "type": "island",
+    "connections": [
+      "ruta_19",
+      "ruta_20"
+    ],
+    "requirements": [
+      "hm03",
+      "hm04"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 86,
+        "name": "Seel",
+        "level": [
+          30,
+          35
+        ],
+        "rate": 40
+      },
+      {
+        "id": 87,
+        "name": "Dewgong",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 10
+      },
+      {
+        "id": 90,
+        "name": "Shellder",
+        "level": [
+          30,
+          35
+        ],
+        "rate": 30
+      },
+      {
+        "id": 91,
+        "name": "Cloyster",
+        "level": [
+          32,
+          37
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  },
+  "cerulean_cave": {
+    "name": "Cueva Celeste",
+    "description": "Una cueva extremadamente profunda y peligrosa. Se dice que Mewtwo vive aquí.",
+    "type": "cave",
+    "connections": [
+      "ciudad_celeste"
+    ],
+    "requirements": [
+      "become_champion"
+    ],
+    "wild_pokemon": [
+      {
+        "id": 41,
+        "name": "Zubat",
+        "level": [
+          52,
+          57
+        ],
+        "rate": 20
+      },
+      {
+        "id": 42,
+        "name": "Golbat",
+        "level": [
+          54,
+          59
+        ],
+        "rate": 15
+      },
+      {
+        "id": 74,
+        "name": "Geodude",
+        "level": [
+          52,
+          57
+        ],
+        "rate": 15
+      },
+      {
+        "id": 75,
+        "name": "Graveler",
+        "level": [
+          54,
+          59
+        ],
+        "rate": 10
+      },
+      {
+        "id": 95,
+        "name": "Onix",
+        "level": [
+          53,
+          58
+        ],
+        "rate": 15
+      },
+      {
+        "id": 64,
+        "name": "Kadabra",
+        "level": [
+          53,
+          58
+        ],
+        "rate": 10
+      },
+      {
+        "id": 65,
+        "name": "Alakazam",
+        "level": [
+          55,
+          60
+        ],
+        "rate": 5
+      }
+    ],
+    "trainers": [],
+    "services": {}
+  }
+}
