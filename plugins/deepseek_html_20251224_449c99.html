@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Pokémon WhatsApp Bot - Tablero de Progreso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --pokemon-red: #FF0000;
+            --pokemon-blue: #3B4CCA;
+            --pokemon-yellow: #FFDE00;
+            --complete: #4CAF50;
+            --in-progress: #FF9800;
+            --pending: #f44336;
+            --future: #9E9E9E;
+            --bg-dark: #1a1a2e;
+            --card-dark: #16213e;
+            --text-light: #f1f1f1;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark), #0f3460);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(59, 76, 202, 0.2);
+            border-radius: 15px;
+            border: 2px solid var(--pokemon-yellow);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: var(--pokemon-yellow);
+        }
+
+        h1 {
+            color: var(--pokemon-yellow);
+            font-size: 2.8rem;
+            text-shadow: 3px 3px 0 var(--pokemon-red);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #FFDE00;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .progress-summary {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .progress-card {
+            background: var(--card-dark);
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid var(--pokemon-blue);
+        }
+
+        .progress-card h3 {
+            color: var(--pokemon-yellow);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .progress-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--pokemon-yellow);
+        }
+
+        .progress-label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .status-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-complete { background: var(--complete); color: white; }
+        .filter-progress { background: var(--in-progress); color: white; }
+        .filter-pending { background: var(--pending); color: white; }
+        .filter-future { background: var(--future); color: white; }
+        .filter-all { background: var(--pokemon-blue); color: white; }
+
+        .phases-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .phase-card {
+            background: var(--card-dark);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .phase-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phase-title {
+            font-size: 1.4rem;
+            color: var(--pokemon-yellow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .phase-body {
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .task-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .task-complete { border-color: var(--complete); color: var(--complete); }
+        .task-progress { border-color: var(--in-progress); color: var(--in-progress); }
+        .task-pending { border-color: var(--pending); color: var(--pending); }
+        .task-future { border-color: var(--future); color: var(--future); }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .task-priority {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .high-priority { background: rgba(244, 67, 54, 0.3); color: #ff8a80; }
+        .medium-priority { background: rgba(255, 152, 0, 0.3); color: #ffd180; }
+        .low-priority { background: rgba(76, 175, 80, 0.3); color: #a5d6a7; }
+
+        .file-structure {
+            background: var(--card-dark);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-structure h2 {
+            color: var(--pokemon-yellow);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tree {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tree ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .tree li {
+            margin: 8px 0;
+            color: #ddd;
+        }
+
+        .tree .folder::before {
+            content: "📁 ";
+            margin-right: 5px;
+        }
+
+        .tree .file::before {
+            content: "📄 ";
+            margin-right: 5px;
+        }
+
+        .tree .completed::before {
+            content: "✅ ";
+            margin-right: 5px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .completion-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--complete), var(--pokemon-blue));
+            border-radius: 5px;
+            transition: width 1s;
+        }
+
+        @media (max-width: 768px) {
+            .phases-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-summary {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--pokemon-blue);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pokemon-red);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>POKÉMON WHATSAPP BOT</h1>
+                <i class="fas fa-gamepad"></i>
+            </div>
+            <p class="subtitle">Tablero de seguimiento de desarrollo - Proyecto de juego interactivo</p>
+            
+            <div class="completion-bar">
+                <div class="completion-fill" id="totalProgress" style="width: 15%;"></div>
+            </div>
+            <p>Progreso total del proyecto: <span id="progressPercent">15%</span></p>
+        </header>
+
+        <div class="progress-summary">
+            <div class="progress-card">
+                <h3><i class="fas fa-check-circle"></i> Completadas</h3>
+                <div class="progress-number" id="completedCount">9</div>
+                <div class="progress-label">Tareas finalizadas</div>
+            </div>
+            <div class="progress-card">
+                <h3><i class="fas fa-spinner"></i> En Progreso</h3>
+                <div class="progress-number" id="inProgressCount">5</div>
+                <div class="progress-label">En desarrollo</div>
+            </div>
+            <div class="progress-card">
+                <h3><i class="fas fa-clock"></i> Pendientes</h3>
+                <div class="progress-number" id="pendingCount">18</div>
+                <div class="progress-label">Por empezar</div>
+            </div>
+            <div class="progress-card">
+                <h3><i class="fas fa-calendar"></i> Futuras</h3>
+                <div class="progress-number" id="futureCount">12</div>
+                <div class="progress-label">Próxima fase</div>
+            </div>
+        </div>
+
+        <div class="status-filters">
+            <button class="filter-btn filter-all active" onclick="filterTasks('all')">
+                <i class="fas fa-layer-group"></i> Todas (44)
+            </button>
+            <button class="filter-btn filter-complete" onclick="filterTasks('complete')">
+                <i class="fas fa-check-circle"></i> Completadas (9)
+            </button>
+            <button class="filter-btn filter-progress" onclick="filterTasks('progress')">
+                <i class="fas fa-spinner"></i> En Progreso (5)
+            </button>
+            <button class="filter-btn filter-pending" onclick="filterTasks('pending')">
+                <i class="fas fa-clock"></i> Pendientes (18)
+            </button>
+            <button class="filter-btn filter-future" onclick="filterTasks('future')">
+                <i class="fas fa-calendar"></i> Futuras (12)
+            </button>
+        </div>
+
+        <div class="phases-container" id="phasesContainer">
+            <!-- Las fases se cargarán dinámicamente con JavaScript -->
+        </div>
+
+        <div class="file-structure">
+            <h2><i class="fas fa-folder-tree"></i> Estructura del Proyecto</h2>
+            <div class="tree">
+                <ul>
+                    <li class="folder">pokemon-whatsapp-bot/</li>
+                    <li>
+                        <ul>
+                            <li class="folder">data/</li>
+                            <li>
+                                <ul>
+                                    <li class="file completed">databasepokemon.js <span class="task-priority high-priority">✅ COMPLETO</span></li>
+                                    <li class="file completed">map.js <span class="task-priority high-priority">✅ COMPLETO</span></li>
+                                    <li class="file completed">trainers.js <span class="task-priority high-priority">✅ COMPLETO</span></li>
+                                    <li class="file pending">items.js <span class="task-priority medium-priority">PENDIENTE</span></li>
+                                    <li class="file pending">moves.js <span class="task-priority low-priority">PENDIENTE</span></li>
+                                </ul>
+                            </li>
+                            <li class="folder">systems/</li>
+                            <li>
+                                <ul>
+                                    <li class="file progress">users.js <span class="task-priority high-priority">EN PROGRESO</span></li>
+                                    <li class="file pending">battleSystem.js <span class="task-priority high-priority">PENDIENTE</span></li>
+                                    <li class="file pending">inventory.js <span class="task-priority high-priority">PENDIENTE</span></li>
+                                    <li class="file pending">teamPC.js <span class="task-priority high-priority">PENDIENTE</span></li>
+                                    <li class="file pending">pokedex.js <span class="task-priority medium-priority">PENDIENTE</span></li>
+                                </ul>
+                            </li>
+                            <li class="folder">services/</li>
+                            <li>
+                                <ul>
+                                    <li class="file future">pokemonCenter.js <span class="task-priority medium-priority">FUTURO</span></li>
+                                    <li class="file future">shopSystem.js <span class="task-priority medium-priority">FUTURO</span></li>
+                                    <li class="file future">gymSystem.js <span class="task-priority high-priority">FUTURO</span></li>
+                                    <li class="file future">saveSystem.js <span class="task-priority high-priority">FUTURO</span></li>
+                                </ul>
+                            </li>
+                            <li class="folder">commands/</li>
+                            <li class="folder">utils/</li>
+                            <li class="file future">bot.js <span class="task-priority high-priority">FUTURO</span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--complete);"></div>
+                <span>Completado</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--in-progress);"></div>
+                <span>En Progreso</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--pending);"></div>
+                <span>Pendiente</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--future);"></div>
+                <span>Futuro</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--pokemon-red);"></div>
+                <span>Alta Prioridad</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--pokemon-yellow);"></div>
+                <span>Media Prioridad</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--complete);"></div>
+                <span>Baja Prioridad</span>
+            </div>
+        </div>
+
+        <footer>
+            <p>Proyecto Pokémon WhatsApp Bot - Sistema de seguimiento de desarrollo</p>
+            <p>Actualizado: <span id="currentDate"></span> | Total de tareas: 44</p>
+            <p><i class="fas fa-code"></i> Desarrollado con HTML, CSS & JavaScript</p>
+        </footer>
+    </div>
+
+    <script>
+        // Datos del proyecto
+        const projectData = {
+            phases: [
+                {
+                    id: "phase0",
+                    title: "FASE 0: BASES DE DATOS",
+                    status: "complete",
+                    icon: "fas fa-database",
+                    tasks: [
+                        { id: "task0-1", text: "Base de datos Pokémon (databasepokemon.js)", status: "complete", priority: "high" },
+                        { id: "task0-2", text: "Base de datos del Mapa (map.js)", status: "complete", priority: "high" },
+                        { id: "task0-3", text: "Base de datos de Entrenadores (trainers.js)", status: "complete", priority: "high" },
+                        { id: "task0-4", text: "Estructura de regiones Kanto", status: "complete", priority: "medium" },
+                        { id: "task0-5", text: "Conexiones entre ubicaciones", status: "complete", priority: "medium" },
+                        { id: "task0-6", text: "Pokémon salvajes por ruta", status: "complete", priority: "medium" },
+                        { id: "task0-7", text: "Servicios por ciudad", status: "complete", priority: "medium" },
+                        { id: "task0-8", text: "Entrenadores normales por ruta", status: "complete", priority: "medium" },
+                        { id: "task0-9", text: "Líderes de gimnasio y rival", status: "complete", priority: "high" }
+                    ]
+                },
+                {
+                    id: "phase1",
+                    title: "FASE 1: SISTEMAS CORE",
+                    status: "progress",
+                    icon: "fas fa-cogs",
+                    tasks: [
+                        { id: "task1-1", text: "Librería de usuarios (users.js)", status: "progress", priority: "high" },
+                        { id: "task1-2", text: "Estructura de datos por jugador", status: "progress", priority: "high" },
+                        { id: "task1-3", text: "Sistema de batalla (battleSystem.js)", status: "pending", priority: "high" },
+                        { id: "task1-4", text: "Módulo de combate por turnos", status: "pending", priority: "high" },
+                        { id: "task1-5", text: "Cálculo de daño con tipos y STAB", status: "pending", priority: "high" },
+                        { id: "task1-6", text: "Sistema de PP y movimientos", status: "pending", priority: "medium" },
+                        { id: "task1-7", text: "Efectos de estado (veneno, paralizado)", status: "pending", priority: "medium" },
+                        { id: "task1-8", text: "Experiencia y subida de nivel", status: "pending", priority: "high" },
+                        { id: "task1-9", text: "Captura de Pokémon salvajes", status: "pending", priority: "high" },
+                        { id: "task1-10", text: "Sistema de inventario (inventory.js)", status: "pending", priority: "high" },
+                        { id: "task1-11", text: "Items disponibles (Poké Balls, Pociones)", status: "pending", priority: "medium" },
+                        { id: "task1-12", text: "Sistema de equipo y PC (teamPC.js)", status: "pending", priority: "high" },
+                        { id: "task1-13", text: "Gestión de equipo (máx 6 Pokémon)", status: "pending", priority: "high" },
+                        { id: "task1-14", text: "Sistema de almacenamiento PC", status: "pending", priority: "medium" },
+                        { id: "task1-15", text: "Pokédex (pokedex.js)", status: "pending", priority: "medium" },
+                        { id: "task1-16", text: "Seguimiento de especies vistas/atrapadas", status: "pending", priority: "low" }
+                    ]
+                },
+                {
+                    id: "phase2",
+                    title: "FASE 2: COMANDOS Y FLUJO",
+                    status: "pending",
+                    icon: "fas fa-terminal",
+                    tasks: [
+                        { id: "task2-1", text: "Handler de comandos (commandHandler.js)", status: "pending", priority: "high" },
+                        { id: "task2-2", text: "Router de comandos principales", status: "pending", priority: "high" },
+                        { id: "task2-3", text: "Middleware de validación", status: "pending", priority: "medium" },
+                        { id: "task2-4", text: "Sistema de guardado (saveSystem.js)", status: "pending", priority: "high" },
+                        { id: "task2-5", text: "Autoguardado después de cada batalla", status: "pending", priority: "high" },
+                        { id: "task2-6", text: "Backup y recuperación por ID", status: "pending", priority: "medium" },
+                        { id: "task2-7", text: "Prevención de corrupción de datos", status: "pending", priority: "medium" }
+                    ]
+                },
+                {
+                    id: "phase3",
+                    title: "FASE 3: SERVICIOS DEL JUEGO",
+                    status: "future",
+                    icon: "fas fa-store",
+                    tasks: [
+                        { id: "task3-1", text: "Centro Pokémon (pokemonCenter.js)", status: "future", priority: "high" },
+                        { id: "task3-2", text: "Curar equipo completo gratis", status: "future", priority: "high" },
+                        { id: "task3-3", text: "Cambiar equipo Pokémon", status: "future", priority: "medium" },
+                        { id: "task3-4", text: "Tienda (shopSystem.js)", status: "future", priority: "high" },
+                        { id: "task3-5", text: "Sistema de compra/venta de items", status: "future", priority: "high" },
+                        { id: "task3-6", text: "Gimnasios (gymSystem.js)", status: "future", priority: "high" },
+                        { id: "task3-7", text: "Progresión por gimnasio con líderes", status: "future", priority: "high" },
+                        { id: "task3-8", text: "Sistema de medallas y recompensas", status: "future", priority: "medium" }
+                    ]
+                },
+                {
+                    id: "phase4",
+                    title: "FASE 4: ESTADÍSTICAS Y PROGRESO",
+                    status: "future",
+                    icon: "fas fa-chart-line",
+                    tasks: [
+                        { id: "task4-1", text: "Sistema de logros (achievements.js)", status: "future", priority: "low" },
+                        { id: "task4-2", text: "Logros automáticos por hitos", status: "future", priority: "low" },
+                        { id: "task4-3", text: "Tabla de clasificación (leaderboard.js)", status: "future", priority: "medium" },
+                        { id: "task4-4", text: "Ranking por nivel, medallas, capturas", status: "future", priority: "medium" },
+                        { id: "task4-5", text: "Sistema de estadísticas de jugador", status: "future", priority: "low" }
+                    ]
+                },
+                {
+                    id: "phase5",
+                    title: "FASE 5: OPTIMIZACIÓN Y DEPURACIÓN",
+                    status: "future",
+                    icon: "fas fa-bug",
+                    tasks: [
+                        { id: "task5-1", text: "Validaciones y mensajes de error amigables", status: "future", priority: "medium" },
+                        { id: "task5-2", text: "Balanceo del juego (EXP, dinero, tasas)", status: "future", priority: "medium" },
+                        { id: "task5-3", text: "Sistema de logs para debugging", status: "future", priority: "low" },
+                        { id: "task5-4", text: "Testing exhaustivo de todos los sistemas", status: "future", priority: "high" },
+                        { id: "task5-5", text: "Ajustes finales y optimizaciones", status: "future", priority: "medium" }
+                    ]
+                }
+            ]
+        };
+
+        // Estado de filtro actual
+        let currentFilter = 'all';
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha actual
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('es-ES', options);
+            
+            // Renderizar fases
+            renderPhases();
+            
+            // Actualizar contadores
+            updateCounters();
+            
+            // Actualizar barra de progreso
+            updateProgressBar();
+        });
+
+        // Renderizar todas las fases
+        function renderPhases() {
+            const container = document.getElementById('phasesContainer');
+            container.innerHTML = '';
+            
+            projectData.phases.forEach(phase => {
+                const phaseCard = createPhaseCard(phase);
+                container.appendChild(phaseCard);
+            });
+        }
+
+        // Crear tarjeta de fase
+        function createPhaseCard(phase) {
+            const card = document.createElement('div');
+            card.className = 'phase-card';
+            card.id = phase.id;
+            
+            // Determinar clase de estado
+            let statusClass = '';
+            let statusText = '';
+            switch(phase.status) {
+                case 'complete': statusClass = 'task-complete'; statusText = 'COMPLETADO'; break;
+                case 'progress': statusClass = 'task-progress'; statusText = 'EN PROGRESO'; break;
+                case 'pending': statusClass = 'task-pending'; statusText = 'PENDIENTE'; break;
+                case 'future': statusClass = 'task-future'; statusText = 'FUTURO'; break;
+            }
+            
+            // Filtrar tareas según el filtro actual
+            const filteredTasks = phase.tasks.filter(task => {
+                if (currentFilter === 'all') return true;
+                return task.status === currentFilter;
+            });
+            
+            // Si no hay tareas con este filtro, ocultar la fase
+            if (currentFilter !== 'all' && filteredTasks.length === 0) {
+                card.style.display = 'none';
+            }
+            
+            // Crear contenido de la tarjeta
+            card.innerHTML = `
+                <div class="phase-header">
+                    <div class="phase-title">
+                        <i class="${phase.icon}"></i>
+                        ${phase.title}
+                    </div>
+                    <div class="phase-status ${statusClass}">${statusText}</div>
+                </div>
+                <div class="phase-body">
+                    <ul class="task-list">
+                        ${filteredTasks.map(task => createTaskItem(task)).join('')}
+                    </ul>
+                    ${filteredTasks.length === 0 ? '<p style="text-align: center; color: #aaa; padding: 20px;">No hay tareas con este filtro</p>' : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Crear elemento de tarea
+        function createTaskItem(task) {
+            let statusClass = '';
+            let statusIcon = '';
+            
+            switch(task.status) {
+                case 'complete': 
+                    statusClass = 'task-complete'; 
+                    statusIcon = 'fas fa-check'; 
+                    break;
+                case 'progress': 
+                    statusClass = 'task-progress'; 
+                    statusIcon = 'fas fa-spinner fa-spin'; 
+                    break;
+                case 'pending': 
+                    statusClass = 'task-pending'; 
+                    statusIcon = 'fas fa-clock'; 
+                    break;
+                case 'future': 
+                    statusClass = 'task-future'; 
+                    statusIcon = 'fas fa-calendar'; 
+                    break;
+            }
+            
+            let priorityClass = '';
+            let priorityText = '';
+            
+            switch(task.priority) {
+                case 'high': 
+                    priorityClass = 'high-priority'; 
+                    priorityText = 'ALTA'; 
+                    break;
+                case 'medium': 
+                    priorityClass = 'medium-priority'; 
+                    priorityText = 'MEDIA'; 
+                    break;
+                case 'low': 
+                    priorityClass = 'low-priority'; 
+                    priorityText = 'BAJA'; 
+                    break;
+            }
+            
+            return `
+                <li class="task-item" data-task-id="${task.id}" data-status="${task.status}">
+                    <div class="task-checkbox ${statusClass}">
+                        <i class="${statusIcon}"></i>
+                    </div>
+                    <div class="task-text">${task.text}</div>
+                    <div class="task-priority ${priorityClass}">${priorityText}</div>
+                </li>
+            `;
+        }
+
+        // Filtrar tareas
+        function filterTasks(filter) {
+            currentFilter = filter;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.querySelector(`.filter-${filter}`).classList.add('active');
+            
+            // Volver a renderizar fases
+            renderPhases();
+        }
+
+        // Actualizar contadores
+        function updateCounters() {
+            let completeCount = 0;
+            let progressCount = 0;
+            let pendingCount = 0;
+            let futureCount = 0;
+            
+            projectData.phases.forEach(phase => {
+                phase.tasks.forEach(task => {
+                    switch(task.status) {
+                        case 'complete': completeCount++; break;
+                        case 'progress': progressCount++; break;
+                        case 'pending': pendingCount++; break;
+                        case 'future': futureCount++; break;
+                    }
+                });
+            });
+            
+            document.getElementById('completedCount').textContent = completeCount;
+            document.getElementById('inProgressCount').textContent = progressCount;
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('futureCount').textContent = futureCount;
+            
+            // Actualizar texto de botones de filtro
+            document.querySelector('.filter-all').innerHTML = `<i class="fas fa-layer-group"></i> Todas (${completeCount + progressCount + pendingCount + futureCount})`;
+            document.querySelector('.filter-complete').innerHTML = `<i class="fas fa-check-circle"></i> Completadas (${completeCount})`;
+            document.querySelector('.filter-progress').innerHTML = `<i class="fas fa-spinner"></i> En Progreso (${progressCount})`;
+            document.querySelector('.filter-pending').innerHTML = `<i class="fas fa-clock"></i> Pendientes (${pendingCount})`;
+            document.querySelector('.filter-future').innerHTML = `<i class="fas fa-calendar"></i> Futuras (${futureCount})`;
+        }
+
+        // Actualizar barra de progreso
+        function updateProgressBar() {
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            projectData.phases.forEach(phase => {
+                phase.tasks.forEach(task => {
+                    totalTasks++;
+                    if (task.status === 'complete') completedTasks++;
+                });
+            });
+            
+            const percentage = Math.round((completedTasks / totalTasks) * 100);
+            document.getElementById('totalProgress').style.width = `${percentage}%`;
+            document.getElementById('progressPercent').textContent = `${percentage}%`;
+        }
+
+        // Alternar estado de tarea (para demostración)
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.task-checkbox')) {
+                const taskItem = e.target.closest('.task-item');
+                const taskId = taskItem.getAttribute('data-task-id');
+                const currentStatus = taskItem.getAttribute('data-status');
+                
+                // Encontrar la tarea en los datos
+                let foundTask = null;
+                for (const phase of projectData.phases) {
+                    foundTask = phase.tasks.find(t => t.id === taskId);
+                    if (foundTask) break;
+                }
+                
+                if (foundTask) {
+                    // Cambiar estado cíclicamente
+                    const statusOrder = ['future', 'pending', 'progress', 'complete'];
+                    const currentIndex = statusOrder.indexOf(currentStatus);
+                    const nextIndex = (currentIndex + 1) % statusOrder.length;
+                    foundTask.status = statusOrder[nextIndex];
+                    
+                    // Actualizar la interfaz
+                    renderPhases();
+                    updateCounters();
+                    updateProgressBar();
+                    
+                    // Mostrar notificación
+                    showNotification(`Tarea "${foundTask.text.substring(0, 30)}..." actualizada a ${getStatusText(foundTask.status)}`);
+                }
+            }
+        });
+
+        // Mostrar notificación
+        function showNotification(message) {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--pokemon-blue);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+                transform: translateX(120%);
+                transition: transform 0.3s;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // Animar salida después de 3 segundos
+            setTimeout(() => {
+                notification.style.transform = 'translateX(120%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Obtener texto del estado
+        function getStatusText(status) {
+            switch(status) {
+                case 'complete': return 'COMPLETADO';
+                case 'progress': return 'EN PROGRESO';
+                case 'pending': return 'PENDIENTE';
+                case 'future': return 'FUTURO';
+                default: return status;
+            }
+        }
+
+        // Exportar datos del proyecto (para desarrollo)
+        window.exportProjectData = function() {
+            const dataStr = JSON.stringify(projectData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'pokemon-bot-progress.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Datos del proyecto exportados correctamente');
+        };
+
+        // Simular progreso automático (para demostración)
+        window.simulateProgress = function() {
+            // Cambiar algunas tareas pendientes a en progreso
+            let changed = 0;
+            
+            projectData.phases.forEach(phase => {
+                if (phase.status === 'pending') {
+                    phase.status = 'progress';
+                    changed++;
+                }
+                
+                phase.tasks.forEach(task => {
+                    if (task.status === 'pending' && Math.random() > 0.7) {
+                        task.status = 'progress';
+                        changed++;
+                    }
+                });
+            });
+            
+            if (changed > 0) {
+                renderPhases();
+                updateCounters();
+                updateProgressBar();
+                showNotification(`Simulación: ${changed} tareas cambiadas a EN PROGRESO`);
+            }
+        };
+    </script>
+</body>
+</html>
