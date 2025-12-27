@@ -45,5 +45,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     return conn.reply(m.chat, ui, m)
 }
 
-handler.command = /^(map|mapa|viajar|ir)$/i
+handler.command = ['map','mapa','viajar','ir']
 export default handler
