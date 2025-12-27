@@ -1,4 +1,4 @@
-eimport gameEngine from '../lib/gameEngine.js'
+import gameEngine from '../lib/gameEngine.js'
 import battleSystem from '../lib/battleEngine.js'
 import userDB from '../lib/userDatabase.js'
 
