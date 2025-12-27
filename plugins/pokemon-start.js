@@ -66,5 +66,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     return conn.reply(m.chat, success, m)
 }
 
-handler.command = /^(start|pk|comenzar)$/i
+handler.command = ['start', 'pk', 'comenzar']
 export default handler
