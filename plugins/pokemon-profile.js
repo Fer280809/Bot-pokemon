@@ -56,6 +56,5 @@ let handler = async (m, { conn }) => {
 
     await conn.reply(m.chat, profile, m)
 }
-
-handler.command = /^(profile|perfil|entrenador)$/i
+handler.command = ['profile', 'perfil', 'entrenador']
 export default handler
