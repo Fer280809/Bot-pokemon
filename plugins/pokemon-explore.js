@@ -1,51 +1,70 @@
-import gameEngine from '../lib/gameEngine.js'
-import battleSystem from '../lib/battleEngine.js'
-import userDB from '../lib/userDatabase.js'
+import gameEngine from './lib/gameEngine.js';
+import battleSystem from './lib/battleEngine.js';
+import userDB from './lib/userDatabase.js';
 
-if (!global.pokemonSess) global.pokemonSess = {}
+if (!global.pokemonSess) global.pokemonSess = {};
 
 let handler = async (m, { conn, text, usedPrefix, command, isBotAdmin }) => {
-    let user = await userDB.getUser(m.sender)
-    let battle = Array.from(battleSystem.activeBattles.values()).find(b => b.playerId === m.sender)
+    let userId = m.sender;
+    let user = await userDB.getUser(userId);
     
-    // Verificar batalla en otro chat
-    if (battle && battle.chatId !== m.chat) {
-        return m.reply(`⚠️ Ya estás en batalla en otro chat. Usa *.endbattle* para terminarla.`)
+    if (!user) {
+        // Crear usuario si no existe
+        const createResult = await userDB.createUser(userId, m.name || "Entrenador");
+        if (!createResult.success) {
+            return m.reply('❌ Error al crear usuario. Usa *.start* para comenzar.');
+        }
+        user = createResult.user;
     }
+
+    // Verificar que tenga Pokémon en equipo
+    if (user.team.length === 0) {
+        return m.reply('❌ No tienes Pokémon en tu equipo. Usa *.start* para comenzar.');
+    }
+
+    let session = global.pokemonSess[userId];
+    let battle = null;
     
-    // Limpiar sesiones expiradas
-    const sess = global.pokemonSess[m.sender]
-    if (sess && Date.now() - sess.timestamp > 300000) {
-        delete global.pokemonSess[m.sender]
-        if (battle) battleSystem.activeBattles.delete(battle.id)
-        battle = null
+    // Buscar batalla activa en gameEngine
+    const gameState = await gameEngine.getGameState(userId);
+    if (gameState.activeEncounter && gameState.activeEncounter.battleId) {
+        battle = battleSystem.getBattleState(gameState.activeEncounter.battleId);
     }
 
     // --- 1. INICIAR NUEVA BATALLA ---
-    if (!battle) {
-        const encounter = await gameEngine.exploreLocation(m.sender)
-        if (!encounter.success) {
-            return m.reply(`🍃 Has explorado pero no encontraste nada... (Suerte: ${encounter.currentChance}%)`)
+    if (!battle || battle.state !== 'active') {
+        const exploreResult = await gameEngine.exploreLocation(userId);
+        
+        if (!exploreResult.success || !exploreResult.encounter) {
+            return m.reply(`🍃 Has explorado pero no encontraste nada...`);
         }
         
-        battle = await battleSystem.startBattle(m.sender, encounter)
-        battle.chatId = m.chat // Guardar chat actual
-        global.pokemonSess[m.sender] = { 
+        // Iniciar batalla desde encuentro
+        const battleStart = await gameEngine.startBattleFromEncounter(userId);
+        if (!battleStart.success) {
+            return m.reply(`❌ ${battleStart.error}`);
+        }
+        
+        battle = battleStart.battle.battleState;
+        global.pokemonSess[userId] = { 
             view: 'MAIN', 
             timestamp: Date.now(),
-            userData: user
-        }
-        return renderUI(conn, m, battle)
+            battleId: battle.id,
+            chatId: m.chat
+        };
+        
+        return renderBattleUI(conn, m, battle, 'MAIN');
     }
 
     // --- 2. BATALLA ACTIVA ---
-    let input = text?.trim().toLowerCase()
-    let currentSess = global.pokemonSess[m.sender]
+    let input = text?.trim().toLowerCase();
+    let currentSess = global.pokemonSess[userId];
     
-    // Actualizar timestamp
-    currentSess.timestamp = Date.now()
+    if (currentSess.chatId !== m.chat) {
+        return m.reply(`⚠️ Ya estás en batalla en otro chat. Usa *.endbattle* para terminarla.`);
+    }
 
-    // Limpiar mensaje anterior solo si somos admin
+    // Limpiar mensaje anterior si es admin
     if (currentSess.lastMsg && m.isGroup && isBotAdmin) {
         try {
             await conn.sendMessage(m.chat, { 
@@ -54,164 +73,170 @@ let handler = async (m, { conn, text, usedPrefix, command, isBotAdmin }) => {
                     fromMe: true, 
                     id: currentSess.lastMsg 
                 } 
-            })
+            });
         } catch (e) {}
     }
 
-    // NAVEGACIÓN POR MENÚS
+    // Procesar acción
+    let result;
     switch (currentSess.view) {
         case 'MAIN':
             if (input === '1') { 
                 currentSess.view = 'ATTACKS'; 
-                return renderUI(conn, m, battle) 
+                return renderBattleUI(conn, m, battle, 'ATTACKS'); 
             }
             if (input === '2') { 
                 currentSess.view = 'BAG'; 
-                return renderUI(conn, m, battle) 
+                return renderBattleUI(conn, m, battle, 'BAG'); 
             }
             if (input === '3') { 
                 currentSess.view = 'TEAM'; 
-                return renderUI(conn, m, battle) 
+                return renderBattleUI(conn, m, battle, 'TEAM'); 
             }
             if (input === '4') {
-                battleSystem.activeBattles.delete(battle.id)
-                delete global.pokemonSess[m.sender]
-                return m.reply('🏃 Has escapado del combate.')
+                // Intentar huir
+                result = await gameEngine.executeBattleAction(userId, 'run');
+                if (result.success && result.battleEnded) {
+                    delete global.pokemonSess[userId];
+                    return m.reply('🏃 Has escapado del combate.');
+                }
+                break;
             }
             break;
 
         case 'ATTACKS':
-            if (input === '5' || input === 'v' || input === 'volver') { 
+            if (input === '5' || input === 'v') { 
                 currentSess.view = 'MAIN'; 
-                return renderUI(conn, m, battle) 
+                return renderBattleUI(conn, m, battle, 'MAIN'); 
             }
-            let moveIdx = parseInt(input) - 1
+            let moveIdx = parseInt(input) - 1;
             if (moveIdx >= 0 && moveIdx < 4) {
-                const res = await battleSystem.executeTurn(battle.id, { type: 'move', moveIndex: moveIdx })
-                currentSess.view = 'MAIN'
-                return renderUI(conn, m, res.battle)
+                result = await gameEngine.executeBattleAction(userId, 'attack', {
+                    moveIndex: moveIdx
+                });
+                currentSess.view = 'MAIN';
+                battle = result.battle?.battleState || battle;
+                return renderBattleUI(conn, m, battle, 'MAIN');
             }
             break;
 
         case 'BAG':
             if (input === '5' || input === 'v') { 
                 currentSess.view = 'MAIN'; 
-                return renderUI(conn, m, battle) 
+                return renderBattleUI(conn, m, battle, 'MAIN'); 
             }
             if (input === '1' && user.inventory.pokeball > 0) {
-                const res = await battleSystem.executeTurn(battle.id, { type: 'item', itemId: 'pokeball' })
-                currentSess.view = 'MAIN'
-                return renderUI(conn, m, res.battle)
-            }
-            break;
-
-        case 'TEAM':
-            if (input === '5' || input === 'v') { 
-                currentSess.view = 'MAIN'; 
-                return renderUI(conn, m, battle) 
-            }
-            let pkIdx = parseInt(input) - 1
-            if (pkIdx >= 0 && pkIdx < user.team.length) {
-                const res = await battleSystem.executeTurn(battle.id, { type: 'switch', pokemonIndex: pkIdx })
-                currentSess.view = 'MAIN'
-                return renderUI(conn, m, res.battle)
+                result = await gameEngine.executeBattleAction(userId, 'catch', {
+                    ballType: 'pokeball'
+                });
+                currentSess.view = 'MAIN';
+                battle = result.battle?.battleState || battle;
+                return renderBattleUI(conn, m, battle, 'MAIN');
             }
             break;
     }
 
-    // Si input inválido, refrescar
-    return renderUI(conn, m, battle)
+    // Refrescar UI si input inválido
+    return renderBattleUI(conn, m, battle, currentSess.view);
 }
 
-async function renderUI(conn, m, battle) {
-    const sess = global.pokemonSess[m.sender]
-    if (!sess) return
+async function renderBattleUI(conn, m, battle, view) {
+    const userId = m.sender;
+    const sess = global.pokemonSess[userId];
     
-    // Cache de datos de usuario
-    let user = sess.userData
-    if (!user || Date.now() - sess.lastUserUpdate > 60000) {
-        user = await userDB.getUser(m.sender)
-        sess.userData = user
-        sess.lastUserUpdate = Date.now()
-    }
-    
-    const playerPk = battle.playerPokemon
-    const enemyPk = battle.wildPokemon || battle.opponentPokemon
+    let user = await userDB.getUser(userId);
+    let playerPokemon = user.team[0]; // Pokémon activo
+    let opponentPokemon = battle.wildPokemon || battle.opponentPokemon;
     
     // Encabezado
-    let header = `⚔️ *COMBATE POKÉMON* ⚔️\n`
-    header += `╔══════════════════════╗\n`
-    header += `║ 🔴 ${enemyPk.name.toUpperCase()} Lv.${enemyPk.level}\n`
-    header += `║ ${drawBar(enemyPk.hp, enemyPk.maxHp)} ${enemyPk.hp}/${enemyPk.maxHp}HP\n`
-    header += `╠══════════════════════╣\n`
-    header += `║ 🔵 ${playerPk.name.toUpperCase()} Lv.${playerPk.level}\n`
-    header += `║ ${drawBar(playerPk.hp, playerPk.maxHp)} ${playerPk.hp}/${playerPk.maxHp}HP\n`
-    header += `╚══════════════════════╝\n\n`
-
-    let body = '', footer = ''
-
-    if (sess.view === 'MAIN') {
-        body = `💬 ${battle.log[battle.log.length - 1] || '¿Qué debe hacer ' + playerPk.name + '?'}\n\n`
-        body += `1️⃣ ATACAR • 2️⃣ MOCHILA\n`
-        body += `3️⃣ EQUIPO • 4️⃣ HUIR\n`
-        footer = `📝 Escribe el número`
-    } 
-    else if (sess.view === 'ATTACKS') {
-        body = `💥 *ATAQUES DISPONIBLES:*\n`
-        playerPk.moves.forEach((move, i) => {
-            body += `${i + 1}. ${move.name} ${move.pp ? `[${move.pp}]` : ''}\n`
-        })
-        body += `5. 🔙 VOLVER\n`
-        footer = `⚡ Selecciona 1-4 para atacar`
+    let header = `⚔️ *COMBATE POKÉMON* ⚔️\n`;
+    header += `╔══════════════════════╗\n`;
+    header += `║ 🔴 ${opponentPokemon?.name?.toUpperCase() || 'OPONENTE'} Lv.${opponentPokemon?.level || '?'}\n`;
+    
+    if (opponentPokemon?.currentHP) {
+        header += `║ ${drawBar(opponentPokemon.currentHP, opponentPokemon.maxHP)} ${opponentPokemon.currentHP}/${opponentPokemon.maxHP}HP\n`;
     }
-    else if (sess.view === 'BAG') {
-        body = `🎒 *MOCHILA:*\n`
-        const inv = user.inventory || {}
-        body += `1. 🔴 Poké Ball: x${inv.pokeball || 0}\n`
-        body += `2. 🧪 Poción: x${inv.potion || 0}\n`
-        body += `3. ⚡ Revivir: x${inv.revive || 0}\n`
-        body += `4. ✨ Ultra Ball: x${inv.ultraball || 0}\n`
-        body += `5. 🔙 VOLVER\n`
-        footer = `🎯 Usa 1-4 para usar item`
+    
+    header += `╠══════════════════════╣\n`;
+    header += `║ 🔵 ${playerPokemon?.name?.toUpperCase() || 'TU POKÉMON'} Lv.${playerPokemon?.level || '?'}\n`;
+    
+    if (playerPokemon?.currentHP) {
+        header += `║ ${drawBar(playerPokemon.currentHP, playerPokemon.maxHP)} ${playerPokemon.currentHP}/${playerPokemon.maxHP}HP\n`;
     }
-    else if (sess.view === 'TEAM') {
-        body = `👥 *EQUIPO (${user.team.length}/6):*\n`
-        user.team.forEach((pk, i) => {
-            const status = pk.hp <= 0 ? '💀' : pk.hp < pk.maxHp * 0.3 ? '⚠️' : '✅'
-            body += `${i + 1}. ${status} ${pk.name} Lv.${pk.level} [${pk.hp}/${pk.maxHp}HP]\n`
-        })
-        body += `5. 🔙 VOLVER\n`
-        footer = `🔄 Escribe 1-${Math.min(6, user.team.length)} para cambiar`
+    
+    header += `╚══════════════════════╝\n\n`;
+
+    let body = '', footer = '';
+
+    switch (view) {
+        case 'MAIN':
+            body = `💬 ${battle.log?.[battle.log.length - 1] || '¿Qué debe hacer tu Pokémon?'}\n\n`;
+            body += `1️⃣ ATACAR • 2️⃣ MOCHILA\n`;
+            body += `3️⃣ EQUIPO • 4️⃣ HUIR\n`;
+            footer = `📝 Escribe el número (1-4)`;
+            break;
+            
+        case 'ATTACKS':
+            body = `💥 *ATAQUES DISPONIBLES:*\n`;
+            if (playerPokemon?.moves) {
+                playerPokemon.moves.forEach((move, i) => {
+                    body += `${i + 1}. ${move.name || move}\n`;
+                });
+            } else {
+                body += `1. Placaje\n2. Gruñido\n`;
+            }
+            body += `5. 🔙 VOLVER\n`;
+            footer = `⚡ Selecciona 1-4 para atacar`;
+            break;
+            
+        case 'BAG':
+            body = `🎒 *MOCHILA:*\n`;
+            body += `1. 🔴 Poké Ball: x${user.inventory?.pokeball || 0}\n`;
+            body += `2. 🧪 Poción: x${user.inventory?.potion || 0}\n`;
+            body += `3. ⚡ Revivir: x${user.inventory?.revive || 0}\n`;
+            body += `4. ✨ Ultra Ball: x${user.inventory?.ultraball || 0}\n`;
+            body += `5. 🔙 VOLVER\n`;
+            footer = `🎯 Usa 1-4 para usar item`;
+            break;
     }
 
-    // Fin de batalla
-    if (['finished', 'won', 'lost'].includes(battle.state)) {
-        delete global.pokemonSess[m.sender]
-        battleSystem.activeBattles.delete(battle.id)
+    // Verificar si la batalla terminó
+    if (battle.state === 'finished' || battle.result) {
+        delete global.pokemonSess[userId];
         
-        header = `🏁 *BATALLA TERMINADA*\n`
-        body = `📊 Resultado: ${battle.state === 'won' ? '🏆 VICTORIA' : '💔 DERROTA'}\n`
-        body += battle.log.slice(-3).join('\n')
-        footer = `\n🎮 Usa *.explore* para buscar otra batalla`
+        header = `🏁 *BATALLA TERMINADA*\n`;
+        body = `📊 Resultado: ${battle.result === 'win' ? '🏆 VICTORIA' : '💔 DERROTA'}\n`;
+        
+        if (battle.log) {
+            body += battle.log.slice(-3).join('\n');
+        }
+        
+        footer = `\n🎮 Usa *.explore* para buscar otra batalla`;
     }
 
-    const msg = await conn.reply(m.chat, header + body + '\n' + footer, m)
-    sess.lastMsg = msg.key.id
-    return msg
+    const msg = await conn.reply(m.chat, header + body + '\n' + footer, m);
+    
+    if (sess) {
+        sess.lastMsg = msg.key.id;
+        sess.timestamp = Date.now();
+    }
+    
+    return msg;
 }
 
 function drawBar(cur, max) {
-    const width = 10
-    const perc = Math.max(0, Math.min(width, Math.round((cur / max) * width)))
-    if (perc >= 8) return '🟩'.repeat(perc) + '⬜'.repeat(width - perc)
-    if (perc >= 4) return '🟨'.repeat(perc) + '⬜'.repeat(width - perc)
-    return '🟥'.repeat(perc) + '⬜'.repeat(width - perc)
+    const width = 10;
+    const perc = Math.max(0, Math.min(width, Math.round((cur / max) * width)));
+    
+    if (perc >= 8) return '🟩'.repeat(perc) + '⬜'.repeat(width - perc);
+    if (perc >= 4) return '🟨'.repeat(perc) + '⬜'.repeat(width - perc);
+    return '🟥'.repeat(perc) + '⬜'.repeat(width - perc);
 }
 
-handler.command = ['explore', 'hunt', 'explorar', 'pk', 'atacar']
-handler.tags = ['rpg', 'games']
+handler.command = ['explore', 'hunt', 'explorar', 'pk', 'atacar'];
+handler.tags = ['rpg', 'games'];
 handler.help = ['explore', 'hunt', 'explorar', 'pk', 'atacar'].map(cmd => 
     `${cmd} - Inicia/continúa una batalla Pokémon`
-)
+);
 
-export default handler
+export default handler;
