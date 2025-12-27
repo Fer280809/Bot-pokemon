@@ -49,5 +49,5 @@ let handler = async (m, { conn, usedPrefix }) => {
     await conn.reply(m.chat, txt, m)
 }
 
-handler.command = /^(inv|mochila|inventario)$/i
+handler.command = ['inv'],['mochila'],['inventario']
 export default handler
