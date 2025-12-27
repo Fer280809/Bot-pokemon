@@ -1,4 +1,8 @@
 import fetch from "node-fetch"
+import { exec } from "child_process"
+import { promisify } from "util"
+
+const execAsync = promisify(exec)
 
 let handler = async (m, { conn, usedPrefix, text }) => {
   try {
@@ -11,35 +15,16 @@ let handler = async (m, { conn, usedPrefix, text }) => {
     const REPO_GIT_URL = 'https://github.com/Fer280809/Bot-pokemon.git'
     const botDir = process.cwd()
 
-    // Función para ejecutar comandos
-    const execCmd = (cmd) => {
-      return new Promise((resolve, reject) => {
-        import('child_process').then(child_process => {
-          child_process.exec(cmd, { cwd: botDir }, (error, stdout, stderr) => {
-            if (error) reject(error)
-            else resolve({ stdout, stderr })
-          })
-        }).catch(reject)
-      })
-    }
-
-    // Verificar si es un repositorio Git
-    const isGitRepo = async () => {
+    // Función para ejecutar comandos con mejor manejo de errores
+    const execCmd = async (cmd, ignoreErrors = false) => {
       try {
-        await execCmd('git rev-parse --git-dir')
-        return true
-      } catch {
-        return false
-      }
-    }
-
-    // Verificar si el repositorio actual es el correcto
-    const isCorrectRepo = async () => {
-      try {
-        const { stdout } = await execCmd('git remote get-url origin')
-        return stdout.trim().includes('Fer280809/Bot-pokemon')
-      } catch {
-        return false
+        const { stdout, stderr } = await execAsync(cmd, { cwd: botDir })
+        return { stdout: stdout.trim(), stderr: stderr.trim() }
+      } catch (error) {
+        if (ignoreErrors) {
+          return { stdout: '', stderr: error.message }
+        }
+        throw error
       }
     }
 
@@ -49,22 +34,18 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       
       try {
         // Verificar si es repositorio Git
-        if (!(await isGitRepo())) {
+        try {
+          await execCmd('git rev-parse --git-dir')
+        } catch {
           return m.reply(`❌ *Este directorio no es un repositorio Git*\n\nPara usar este comando, el bot debe estar en:\n${REPO_URL}\n\nClona el repositorio primero con:\n\`git clone ${REPO_GIT_URL}\``)
-        }
-
-        // Verificar si es el repositorio correcto
-        if (!(await isCorrectRepo())) {
-          const { stdout: currentRepo } = await execCmd('git remote get-url origin')
-          return m.reply(`⚠️ *Repositorio incorrecto*\n\n📍 *Actual:* ${currentRepo.trim()}\n✅ *Esperado:* ${REPO_URL}\n\nEste comando solo funciona con Bot-pokemon.`)
         }
 
         // Obtener rama actual
         const { stdout: ramaActual } = await execCmd('git branch --show-current')
         
         // Obtener todas las ramas remotas
-        await execCmd('git fetch origin --prune')
-        const { stdout: ramasRemotas } = await execCmd('git branch -r')
+        await execCmd('git fetch origin --prune', true)
+        const { stdout: ramasRemotas } = await execCmd('git branch -r', true)
         
         // Procesar ramas remotas
         const ramas = ramasRemotas
@@ -77,28 +58,32 @@ let handler = async (m, { conn, usedPrefix, text }) => {
           return m.reply('❌ No se encontraron ramas remotas.')
         }
 
-        // Obtener último commit de cada rama
-        let listaRamas = `🌿 *RAMAS DISPONIBLES - BOT POKEMON*\n\n`
+        // Obtener información de cada rama
+        let listaRamas = `🌿 *RAMAS DISPONIBLES*\n\n`
         listaRamas += `📦 *Repositorio:* ${REPO_URL}\n`
-        listaRamas += `📍 *Rama actual:* \`${ramaActual.trim()}\`\n\n`
+        listaRamas += `📍 *Rama actual:* \`${ramaActual}\`\n\n`
         
-        for (const rama of ramas) {
+        for (const rama of ramas.slice(0, 10)) { // Limitar a 10 ramas
           try {
-            const { stdout: lastCommit } = await execCmd(`git log origin/${rama} -1 --pretty=format:"%s" 2>/dev/null`)
-            const { stdout: commitDate } = await execCmd(`git log origin/${rama} -1 --pretty=format:"%cr" 2>/dev/null`)
-            const esActual = rama === ramaActual.trim()
+            const { stdout: lastCommit } = await execCmd(`git log origin/${rama} -1 --pretty=format:"%s" 2>/dev/null || echo "Sin información"`, true)
+            const { stdout: commitDate } = await execCmd(`git log origin/${rama} -1 --pretty=format:"%cr" 2>/dev/null || echo "Sin fecha"`, true)
+            const esActual = rama === ramaActual
             
             listaRamas += `${esActual ? '🔹' : '▫️'} *${rama}*\n`
-            listaRamas += `   📝 ${lastCommit.trim()}\n`
-            listaRamas += `   🕐 ${commitDate.trim()}\n\n`
+            listaRamas += `   📝 ${lastCommit.substring(0, 50)}${lastCommit.length > 50 ? '...' : ''}\n`
+            listaRamas += `   🕐 ${commitDate}\n\n`
           } catch (e) {
-            listaRamas += `${rama === ramaActual.trim() ? '🔹' : '▫️'} *${rama}*\n\n`
+            listaRamas += `${rama === ramaActual ? '🔹' : '▫️'} *${rama}*\n\n`
           }
+        }
+
+        if (ramas.length > 10) {
+          listaRamas += `... y ${ramas.length - 10} ramas más\n\n`
         }
 
         listaRamas += `\n💡 *Uso:*\n`
         listaRamas += `• \`${usedPrefix}update\` - Ver ramas\n`
-        listaRamas += `• \`${usedPrefix}update ${ramaActual.trim()}\` - Actualizar rama actual\n`
+        listaRamas += `• \`${usedPrefix}update main\` - Actualizar rama principal\n`
         listaRamas += `• \`${usedPrefix}update <rama>\` - Cambiar y actualizar`
 
         await m.react('✅')
@@ -116,10 +101,11 @@ let handler = async (m, { conn, usedPrefix, text }) => {
     await m.react('🕒')
     
     const msgInicial = await conn.sendMessage(m.chat, { 
-      text: `🔄 *Iniciando actualización de Bot-pokemon*\n\n🌿 Rama: ${ramaDeseada}\n⏳ Esto puede tomar 1-2 minutos...` 
+      text: `🔄 *Iniciando actualización*\n\n🌿 Rama: ${ramaDeseada}\n⏳ Esto puede tomar 1-2 minutos...` 
     }, { quoted: m })
 
     const backupDir = `${botDir}/backup_update_${Date.now()}`
+    const backupCustomDir = `${botDir}/custom_files_${Date.now()}`
 
     // Función para actualizar el mensaje
     const actualizarMensaje = async (texto) => {
@@ -133,50 +119,48 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       }
     }
 
-    // Verificar que es un repositorio Git
-    if (!(await isGitRepo())) {
-      await m.react('❌')
-      await actualizarMensaje(`❌ *No es un repositorio Git*\n\nEste directorio no es un repositorio Git.\n\nClona Bot-pokemon desde:\n${REPO_URL}`)
-      return
-    }
-
-    // Verificar que es el repositorio correcto
-    if (!(await isCorrectRepo())) {
-      await m.react('❌')
-      const { stdout: currentRepo } = await execCmd('git remote get-url origin')
-      await actualizarMensaje(`❌ *Repositorio incorrecto*\n\n📍 *Actual:* ${currentRepo.trim()}\n✅ *Esperado:* Bot-pokemon\n\nEste comando solo funciona con el repositorio oficial.`)
-      return
-    }
-
-    // Verificar que la rama existe en remoto
-    await actualizarMensaje(`🔄 *Actualizando Bot-pokemon*\n\n🔍 Verificando rama en GitHub...`)
+    // Paso 1: Verificar que es un repositorio Git
+    await actualizarMensaje(`🔄 *Verificando repositorio...*`)
     
     try {
-      await execCmd('git fetch origin --prune')
-      const { stdout: ramasRemotas } = await execCmd('git branch -r')
-      const ramaExiste = ramasRemotas.includes(`origin/${ramaDeseada}`)
-      
-      if (!ramaExiste) {
-        await m.react('❌')
-        await actualizarMensaje(`❌ *Rama no encontrada*\n\nLa rama \`${ramaDeseada}\` no existe en Bot-pokemon.\n\nUsa \`${usedPrefix}update\` para ver las ramas disponibles.`)
-        return
-      }
-    } catch (e) {
+      await execCmd('git rev-parse --git-dir')
+    } catch {
       await m.react('❌')
-      await actualizarMensaje('❌ *Error de conexión*\n\nNo se pudo conectar con GitHub. Verifica tu internet.')
+      await actualizarMensaje(`❌ *No es un repositorio Git*`)
       return
     }
 
-    // Obtener rama actual
-    const { stdout: ramaActual } = await execCmd('git branch --show-current')
-    const cambioRama = ramaActual.trim() !== ramaDeseada
+    // Paso 2: Identificar archivos personalizados (untracked files)
+    await actualizarMensaje(`🔄 *Buscando archivos personalizados...*`)
+    
+    const { stdout: untrackedFiles } = await execCmd('git status --porcelain | grep "^??" | cut -c4-', true)
+    const filesToBackup = untrackedFiles.split('\n').filter(f => f.trim()).slice(0, 20) // Limitar a 20 archivos
+    
+    if (filesToBackup.length > 0) {
+      await actualizarMensaje(`🔄 *Detectados ${filesToBackup.length} archivos personalizados*\n\nGuardando respaldo...`)
+      
+      // Crear directorio para archivos personalizados
+      await execCmd(`mkdir -p "${backupCustomDir}"`)
+      
+      for (const file of filesToBackup) {
+        if (file.trim()) {
+          try {
+            await execCmd(`cp -r "${botDir}/${file}" "${backupCustomDir}/${file}" 2>/dev/null || true`)
+          } catch (e) {
+            console.log(`No se pudo respaldar ${file}:`, e.message)
+          }
+        }
+      }
+      
+      await actualizarMensaje(`🔄 *Archivos personales respaldados:*\n${filesToBackup.map(f => `• ${f}`).join('\n').substring(0, 300)}...`)
+    }
 
-    // 1. Crear backup
-    await actualizarMensaje(`🔄 *Actualizando Bot-pokemon*\n\n💾 Creando respaldo de seguridad...`)
+    // Paso 3: Crear backup general
+    await actualizarMensaje(`🔄 *Creando respaldo general...*`)
 
     await execCmd(`mkdir -p "${backupDir}"`)
 
-    const backupFiles = ['database.json', 'settings.js', 'sessions', '.env']
+    const backupFiles = ['database.json', 'settings.js', 'sessions', '.env', 'lib/', 'plugins/']
     for (const file of backupFiles) {
       try {
         await execCmd(`cp -r "${botDir}/${file}" "${backupDir}/${file}" 2>/dev/null || true`)
@@ -185,175 +169,212 @@ let handler = async (m, { conn, usedPrefix, text }) => {
       }
     }
 
-    // 2. Verificar cambios disponibles
-    await actualizarMensaje(`🔄 *Actualizando Bot-pokemon*\n\n📊 Analizando cambios disponibles...`)
-
-    const { stdout: cambios } = await execCmd(`git log HEAD..origin/${ramaDeseada} --oneline --no-merges`)
-    const listaCambios = cambios.split('\n').filter(l => l).slice(0, 5)
-
-    if (listaCambios.length === 0 && !cambioRama) {
-      await m.react('✅')
-      await actualizarMensaje(`✅ *Bot actualizado*\n\n🌿 Rama: \`${ramaDeseada}\`\n📦 Repositorio: Bot-pokemon\n\nNo hay nuevos cambios disponibles.`)
-      // Limpiar backup
-      await execCmd(`rm -rf "${backupDir}"`)
-      return
+    // Paso 4: Verificar si la rama existe
+    await actualizarMensaje(`🔄 *Verificando rama ${ramaDeseada}...*`)
+    
+    try {
+      await execCmd('git fetch origin --prune', true)
+      const { stdout: ramasRemotas } = await execCmd('git branch -r', true)
+      const ramaExiste = ramasRemotas.includes(`origin/${ramaDeseada}`)
+      
+      if (!ramaExiste) {
+        await m.react('❌')
+        await actualizarMensaje(`❌ *Rama no encontrada*\n\nLa rama "${ramaDeseada}" no existe.`)
+        return
+      }
+    } catch (e) {
+      console.log('Error verificando rama:', e.message)
     }
 
-    // 3. Aplicar actualización
-    await actualizarMensaje(`🔄 *Actualizando Bot-pokemon*\n\n⚡ ${cambioRama ? 'Cambiando de rama y actualizando' : 'Aplicando actualización'}...`)
-
-    try {
-      // Guardar cambios locales
-      await execCmd('git stash')
-
-      // Cambiar de rama si es necesario
-      if (cambioRama) {
-        try {
-          // Verificar si la rama local existe
-          const { stdout: ramasLocales } = await execCmd('git branch')
-          const ramaLocalExiste = ramasLocales.includes(ramaDeseada)
-
-          if (ramaLocalExiste) {
-            await execCmd(`git checkout ${ramaDeseada}`)
-          } else {
-            await execCmd(`git checkout -b ${ramaDeseada} origin/${ramaDeseada}`)
+    // Paso 5: Limpiar archivos que causan conflicto
+    await actualizarMensaje(`🔄 *Limpiando archivos conflictivos...*`)
+    
+    if (filesToBackup.length > 0) {
+      // Mover archivos personalizados temporalmente
+      for (const file of filesToBackup) {
+        if (file.trim()) {
+          try {
+            await execCmd(`mv "${botDir}/${file}" "${botDir}/${file}.bak" 2>/dev/null || true`)
+          } catch (e) {
+            // Si no se puede mover, intentar eliminar
+            try {
+              await execCmd(`rm -rf "${botDir}/${file}" 2>/dev/null || true`)
+            } catch (e2) {}
           }
-        } catch (checkoutError) {
-          throw new Error(`No se pudo cambiar a la rama ${ramaDeseada}: ${checkoutError.message}`)
         }
       }
+    }
 
-      // Hacer pull de la rama
+    // Paso 6: Guardar cambios locales
+    await actualizarMensaje(`🔄 *Guardando cambios locales...*`)
+    
+    try {
+      await execCmd('git stash push -m "backup_auto_update"')
+    } catch (e) {
+      console.log('No se pudo hacer stash:', e.message)
+    }
+
+    // Paso 7: Obtener rama actual
+    const { stdout: ramaActual } = await execCmd('git branch --show-current', true)
+    const cambioRama = ramaActual !== ramaDeseada
+
+    // Paso 8: Actualizar
+    await actualizarMensaje(`🔄 *Actualizando código...*`)
+    
+    try {
+      if (cambioRama) {
+        // Cambiar de rama
+        await execCmd(`git checkout ${ramaDeseada}`)
+      }
+      
+      // Hacer pull
       const { stdout: pullResult } = await execCmd(`git pull origin ${ramaDeseada} --no-rebase`)
-
-      if (pullResult.includes('CONFLICT') || pullResult.includes('error:')) {
-        await execCmd('git merge --abort')
-        await execCmd(`git checkout ${ramaActual.trim()}`)
-        await execCmd('git stash pop')
-        throw new Error('Conflicto al fusionar cambios')
+      
+      if (pullResult.includes('error') || pullResult.includes('fatal')) {
+        throw new Error('Error en git pull: ' + pullResult)
       }
 
-      // 4. Actualizar dependencias si es necesario
+      // Paso 9: Restaurar archivos personalizados si existen
+      if (filesToBackup.length > 0) {
+        await actualizarMensaje(`🔄 *Restaurando archivos personales...*`)
+        
+        // Primero eliminar backups temporales
+        for (const file of filesToBackup) {
+          if (file.trim()) {
+            try {
+              await execCmd(`rm -rf "${botDir}/${file}.bak" 2>/dev/null || true`)
+            } catch (e) {}
+          }
+        }
+        
+        // Restaurar desde el respaldo
+        for (const file of filesToBackup) {
+          if (file.trim()) {
+            try {
+              await execCmd(`cp -r "${backupCustomDir}/${file}" "${botDir}/${file}" 2>/dev/null || true`)
+            } catch (e) {
+              console.log(`No se pudo restaurar ${file}:`, e.message)
+            }
+          }
+        }
+      }
+
+      // Paso 10: Verificar si hay que actualizar dependencias
       const packageChanged = pullResult.toLowerCase().includes('package.json')
-
+      
       if (packageChanged) {
-        await actualizarMensaje(`🔄 *Actualizando Bot-pokemon*\n\n📦 Instalando nuevas dependencias...`)
+        await actualizarMensaje(`🔄 *Actualizando dependencias...*`)
+        
         try {
-          await execCmd('npm install --legacy-peer-deps')
-        } catch (npmError) {
-          await execCmd('npm install --force')
+          await execCmd('npm install --legacy-peer-deps', true)
+        } catch (e) {
+          console.log('Error en npm install:', e.message)
+          try {
+            await execCmd('npm install --force', true)
+          } catch (e2) {
+            console.log('Error en npm install --force:', e2.message)
+          }
         }
       }
 
-      // 5. Restaurar backups
-      const checkBackup = async (file) => {
+      // Paso 11: Restaurar configuraciones importantes
+      await actualizarMensaje(`🔄 *Restaurando configuraciones...*`)
+      
+      const restoreConfig = async (file) => {
         try {
-          const { stdout } = await execCmd(`[ -e "${backupDir}/${file}" ] && echo "exists"`)
-          return stdout.includes('exists')
-        } catch {
-          return false
-        }
+          await execCmd(`[ -f "${backupDir}/${file}" ] && cp "${backupDir}/${file}" "${botDir}/${file}"`, true)
+        } catch (e) {}
       }
+      
+      await restoreConfig('database.json')
+      await restoreConfig('settings.js')
+      await restoreConfig('.env')
+      
+      // Restaurar sessions si existe
+      try {
+        await execCmd(`[ -d "${backupDir}/sessions" ] && cp -r "${backupDir}/sessions" "${botDir}/"`, true)
+      } catch (e) {}
 
-      if (await checkBackup('database.json')) {
-        await execCmd(`cp "${backupDir}/database.json" "${botDir}/database.json"`)
-      }
+      // Paso 12: Información final
+      const { stdout: commitHash } = await execCmd('git log -1 --pretty=format:"%h"', true)
+      const { stdout: commitMsg } = await execCmd('git log -1 --pretty=format:"%s"', true)
+      const { stdout: ramaFinal } = await execCmd('git branch --show-current', true)
 
-      if (await checkBackup('settings.js')) {
-        await execCmd(`cp "${backupDir}/settings.js" "${botDir}/settings.js"`)
-      }
-
-      if (await checkBackup('.env')) {
-        await execCmd(`cp "${backupDir}/.env" "${botDir}/.env"`)
-      }
-
-      if (await checkBackup('sessions')) {
-        await execCmd(`rm -rf "${botDir}/sessions" 2>/dev/null || true`)
-        await execCmd(`cp -r "${backupDir}/sessions" "${botDir}/"`)
-      }
-
-      // 6. Obtener información del commit
-      const { stdout: commitHash } = await execCmd('git log -1 --pretty=format:"%h"')
-      const { stdout: commitMsg } = await execCmd('git log -1 --pretty=format:"%s"')
-      const { stdout: commitAuthor } = await execCmd('git log -1 --pretty=format:"%an"')
-      const { stdout: ramaFinal } = await execCmd('git branch --show-current')
-      const filesChanged = (pullResult.match(/\| \d+ [+-]+/g) || []).length
-
-      // 7. Mensaje final
       const mensajeFinal = `
 ✅ *ACTUALIZACIÓN COMPLETADA*
 
 📦 *Repositorio:* Bot-pokemon
-🌿 *Rama:* \`${ramaFinal.trim()}\` ${cambioRama ? '(cambiada)' : ''}
-${cambioRama ? `   Desde: \`${ramaActual.trim()}\`\n` : ''}
-🔧 *Detalles:*
-🆕 Commit: ${commitHash.trim()}
-👤 Autor: ${commitAuthor.trim()}
-📝 Mensaje: ${commitMsg.trim()}
-📄 Archivos: ${filesChanged} modificados
-🔧 Dependencias: ${packageChanged ? 'Actualizadas ✅' : 'Sin cambios'}
+🌿 *Rama:* \`${ramaFinal}\`
+${cambioRama ? `🔀 Cambiada desde: \`${ramaActual}\`\n` : ''}
+📝 *Último commit:*
+   🔹 ${commitHash}
+   👤 ${commitMsg}
 
-⚠️ *Para aplicar los cambios:*
-• Reinicia el bot manualmente
-• O usa el comando *${usedPrefix}reiniciar*
+${filesToBackup.length > 0 ? `📁 *Archivos personales restaurados:* ${filesToBackup.length}\n` : ''}
+${packageChanged ? '📦 *Dependencias actualizadas*\n' : ''}
 
-${listaCambios.length > 0 ? `📌 *Últimos cambios aplicados:*\n${listaCambios.map((c, i) => `• ${c.substring(8)}`).join('\n')}` : ''}
+⚠️ *Pasos recomendados:*
+1. Verifica que todo funciona
+2. Usa \`.menu\` para probar comandos
+3. Si hay problemas, usa \`.report\`
 
-💾 Backup guardado temporalmente
-🔗 ${REPO_URL}
+💾 *Backups creados:*
+   • ${backupDir}
+   ${filesToBackup.length > 0 ? `• ${backupCustomDir}` : ''}
+
+Los backups se eliminarán automáticamente en 5 minutos.
       `.trim()
 
       await m.react('✅')
       await actualizarMensaje(mensajeFinal)
 
-      // Limpiar backup después de 1 minuto
+      // Limpiar backups después de 5 minutos
       setTimeout(async () => {
         try {
-          await execCmd(`rm -rf "${backupDir}"`)
+          await execCmd(`rm -rf "${backupDir}"`, true)
+          if (filesToBackup.length > 0) {
+            await execCmd(`rm -rf "${backupCustomDir}"`, true)
+          }
         } catch (e) {
-          console.log('No se pudo eliminar backup:', e.message)
+          console.log('No se pudieron eliminar backups:', e.message)
         }
-      }, 60000)
+      }, 300000)
 
-    } catch (updateError) {
-      await actualizarMensaje(`🔄 *Actualizando Bot-pokemon*\n\n⚠️ Error durante la actualización, restaurando versión anterior...`)
-
+    } catch (error) {
+      // ERROR: Restaurar todo
+      await actualizarMensaje(`❌ *Error en actualización*\n\nRestaurando versión anterior...`)
+      
       try {
-        const restoreFile = async (file) => {
-          try {
-            const { stdout } = await execCmd(`[ -e "${backupDir}/${file}" ] && echo "exists"`)
-            const exists = stdout.includes('exists')
-            
-            if (exists) {
-              if (file === 'sessions') {
-                await execCmd(`rm -rf "${botDir}/sessions" 2>/dev/null || true`)
-                await execCmd(`cp -r "${backupDir}/sessions" "${botDir}/"`)
-              } else {
-                await execCmd(`cp "${backupDir}/${file}" "${botDir}/${file}"`)
-              }
-            }
-          } catch (e) {}
-        }
-
-        await restoreFile('database.json')
-        await restoreFile('settings.js')
-        await restoreFile('.env')
-        await restoreFile('sessions')
+        // Restaurar desde backup general
+        await execCmd(`cp -r "${backupDir}/." "${botDir}/" 2>/dev/null || true`)
         
-        // Volver a la rama original si hubo cambio
-        if (cambioRama) {
-          await execCmd(`git checkout ${ramaActual.trim()}`)
+        // Restaurar archivos personalizados
+        if (filesToBackup.length > 0) {
+          for (const file of filesToBackup) {
+            if (file.trim()) {
+              try {
+                await execCmd(`cp -r "${backupCustomDir}/${file}" "${botDir}/${file}" 2>/dev/null || true`)
+              } catch (e) {}
+            }
+          }
         }
-        await execCmd('git reset --hard HEAD')
-
+        
+        // Restaurar rama si fue cambiada
+        if (cambioRama && ramaActual) {
+          await execCmd(`git checkout ${ramaActual}`, true)
+        }
+        
+        await execCmd('git reset --hard HEAD', true)
+        
         await m.react('❌')
         await actualizarMensaje(
-          `❌ *Actualización fallida*\n\nSe restauró la versión anterior en la rama \`${ramaActual.trim()}\`.\n\nError: ${updateError.message}\n\n📍 Usa *${usedPrefix}report* para informar el problema.`
+          `❌ *Actualización fallida*\n\nSe restauró la versión anterior.\n\nError: ${error.message}\n\n📍 Backups guardados en:\n• ${backupDir}\n${filesToBackup.length > 0 ? `• ${backupCustomDir}` : ''}`
         )
+        
       } catch (restoreError) {
         await m.react('💀')
         await actualizarMensaje(
-          `💀 *Error crítico*\n\nNo se pudo restaurar el backup.\n\nContacta al desarrollador.\n\nBackup en: ${backupDir}`
+          `💀 *Error crítico*\n\nNo se pudo restaurar. Backups en:\n• ${backupDir}\n${filesToBackup.length > 0 ? `• ${backupCustomDir}` : ''}\n\nContacta al desarrollador.`
         )
       }
     }
@@ -361,7 +382,7 @@ ${listaCambios.length > 0 ? `📌 *Últimos cambios aplicados:*\n${listaCambios.
   } catch (error) {
     await m.react('✖️')
     await conn.sendMessage(m.chat, { 
-      text: `⚠️ *Error inesperado*\n\n${error.message}\n\n📍 Usa *${usedPrefix}report* para informar.` 
+      text: `⚠️ *Error inesperado*\n\n${error.message}` 
     }, { quoted: m })
   }
 }
