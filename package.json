@@ -13,14 +13,14 @@
 },
 "repository": {
 "type": "git",
-"url": "git+https://github.com/Fer280809/Asta_bot.git"
+"url": "git+https://github.com/Fer280809/Bot-pokemon.git"
 },  
 "author": "Fernando",
 "license": "MIT-License",
 "bugs": {
-"url": "https://github.com/Fer280809/Asta_bot/issues"
+"url": "https://github.com/Fer280809/Bot-pokemon/issues"
 },
-"homepage": "https://github.com/Fer280809/Asta_bot#readme",
+"homepage": "https://github.com/Fer280809/Bot-pokemon#readme",
 "dependencies": {
 "axios": "^1.7.2",
 "cheerio": "^1.0.0-rc.12",
