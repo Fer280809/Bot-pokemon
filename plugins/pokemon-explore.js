@@ -1,4 +1,4 @@
-import gameEngine from '../lib/gameEngine.js'
+eimport gameEngine from '../lib/gameEngine.js'
 import battleSystem from '../lib/battleEngine.js'
 import userDB from '../lib/userDatabase.js'
 
@@ -154,5 +154,5 @@ function drawBar(cur, max) {
     return color.repeat(perc) + '⬜'.repeat(10 - perc)
 }
 
-handler.command = /^(explore|hunt|explorar|pk|atacar)$/i
+handler.command = ['explore', 'hunt', 'explorar', 'pk', 'atakar']
 export default handler
