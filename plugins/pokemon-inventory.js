@@ -1,4 +1,4 @@
-import userDB from '../lib/userDatabase.js'
+eimport userDB from '../lib/userDatabase.js'
 import itemsDB from '../lib/items.json' assert { type: 'json' }
 
 let handler = async (m, { conn, usedPrefix }) => {
@@ -49,5 +49,5 @@ let handler = async (m, { conn, usedPrefix }) => {
     await conn.reply(m.chat, txt, m)
 }
 
-handler.command = ['inv'],['mochila'],['inventario']
+handler.command = ['inv', 'mochila', 'inventario']
 export default handler
