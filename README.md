@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://files.catbox.moe/yy5uwn.jpeg" alt="POKE-BOT" width="350">
 </p>
-
+<img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&weight=700&size=30&duration=4000&pause=1000&color=00FF00&width=435¢er=true&vCenter=true&random=false&lines=✨+ESTE+ES+EL+MEJOR+BOT+DE+WHATSAPP+✨;🔥+ASTA-BOT+PREMIUM+🔥;💫+VELOCIDAD+Y+ESTABILIDAD+💫" alt="Typing SVG" />
 <div align="center">
  <h2>
    <marquee behavior="scroll" direction="left" scrollamount="10">
