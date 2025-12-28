@@ -67,85 +67,152 @@ const __dirname = global.__dirname(import.meta.url)
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
 global.prefix = new RegExp('^[#!./-]')
 
-// ============ INICIALIZACIÓN SISTEMA POKÉMON ============
-// Verificar que los archivos necesarios existan en /lib
-const pokemonFiles = ['./lib/gameEngine.js', './lib/userDatabase.js', './lib/saveManager.js']
-let pokemonSystemReady = true
-
-for (const file of pokemonFiles) {
-  try {
-    const filePath = join(__dirname, file)
-    if (!existsSync(filePath)) {
-      console.log(chalk.yellow(`⚠️  Archivo Pokémon no encontrado en /lib: ${file}`))
-      pokemonSystemReady = false
-    }
-  } catch (error) {
-    pokemonSystemReady = false
-  }
+// ============ INICIALIZACIÓN SISTEMA POKÉMON OPTIMIZADA ============
+// Inicializar estructura global si no existe
+if (!global.pokemonSystem) {
+    global.pokemonSystem = {
+        gameEngine: null,
+        userDB: null,
+        saveManager: null,
+        battles: new Map(),
+        cooldowns: new Map(),
+        wildEncounters: new Map(),
+        isReady: false,
+        initPromise: null
+    };
+    
+    console.log(chalk.cyan('🎮 Sistema Pokémon: Estructura global inicializada'));
 }
 
-if (pokemonSystemReady) {
-  console.log(chalk.green('✅ Sistema Pokémon detectado en /lib, inicializando...'))
-  
-  // Inicializar el sistema Pokémon global
-  global.pokemonSystem = {
-    gameEngine: null,
-    userDB: null,
-    saveManager: null,
-    battles: new Map(),
-    cooldowns: new Map(),
-    wildEncounters: new Map(),
-    isReady: false
-  }
-  
-  // Cargar módulos Pokémon en paralelo
-  Promise.all([
-    import('./lib/gameEngine.js').then(module => {
-      global.pokemonSystem.gameEngine = module.default || module
-      console.log(chalk.green('✅ GameEngine cargado desde /lib'))
-    }).catch(error => {
-      console.error(chalk.red('❌ Error al cargar GameEngine:'), error)
-    }),
-    
-    import('./lib/userDatabase.js').then(module => {
-      global.pokemonSystem.userDB = module.default || module
-      console.log(chalk.green('✅ UserDatabase cargado desde /lib'))
-    }).catch(error => {
-      console.error(chalk.red('❌ Error al cargar UserDatabase:'), error)
-    }),
-    
-    import('./lib/saveManager.js').then(module => {
-      global.pokemonSystem.saveManager = module.default || module
-      console.log(chalk.green('✅ SaveManager cargado desde /lib'))
-    }).catch(error => {
-      console.error(chalk.red('❌ Error al cargar SaveManager:'), error)
-    })
-  ]).then(() => {
-    global.pokemonSystem.isReady = true
-    console.log(chalk.bold.green('🎮 Sistema Pokémon completamente inicializado desde /lib'))
-    
-    // Iniciar el saveManager si está disponible
-    if (global.pokemonSystem.saveManager && typeof global.pokemonSystem.saveManager.start === 'function') {
-      global.pokemonSystem.saveManager.start()
-      console.log(chalk.cyan('🔄 SaveManager iniciado'))
+// Función para cargar módulos Pokémon en segundo plano
+const loadPokemonModules = async () => {
+    if (global.pokemonSystem.isReady) {
+        return true;
     }
-  }).catch(error => {
-    console.error(chalk.red('❌ Error crítico al inicializar sistema Pokémon:'), error)
-  })
-} else {
-  console.log(chalk.yellow('⚠️  Sistema Pokémon no disponible. Algunos comandos no funcionarán.'))
-  
-  // Inicializar objeto vacío para evitar errores
-  global.pokemonSystem = {
-    gameEngine: null,
-    userDB: null,
-    saveManager: null,
-    battles: new Map(),
-    cooldowns: new Map(),
-    wildEncounters: new Map(),
-    isReady: false
-  }
-}
+    
+    // Si ya hay una inicialización en proceso, esperar
+    if (global.pokemonSystem.initPromise) {
+        return global.pokemonSystem.initPromise;
+    }
+    
+    global.pokemonSystem.initPromise = (async () => {
+        try {
+            console.log(chalk.cyan('🎮 Cargando sistema Pokémon...'));
+            
+            // Verificar que los archivos existan
+            const pokemonLibPath = path.join(__dirname, 'lib');
+            const requiredFiles = ['gameEngine.js', 'userDatabase.js', 'saveManager.js'];
+            
+            for (const file of requiredFiles) {
+                const filePath = path.join(pokemonLibPath, file);
+                if (!existsSync(filePath)) {
+                    console.log(chalk.yellow(`⚠️  Archivo Pokémon no encontrado: ${file}`));
+                    console.log(chalk.yellow(`   Ruta: ${filePath}`));
+                    // Crear directorio lib si no existe
+                    if (!existsSync(pokemonLibPath)) {
+                        mkdirSync(pokemonLibPath, { recursive: true });
+                        console.log(chalk.green(`✅ Directorio /lib creado`));
+                    }
+                }
+            }
+            
+            // Cargar módulos con manejo de errores robusto
+            let gameEngine, userDB, saveManager;
+            let modulesLoaded = 0;
+            
+            try {
+                const gameEngineModule = await import('./lib/gameEngine.js');
+                gameEngine = gameEngineModule.default || gameEngineModule;
+                global.pokemonSystem.gameEngine = gameEngine;
+                modulesLoaded++;
+                console.log(chalk.green('✅ GameEngine cargado'));
+            } catch (gameError) {
+                console.error(chalk.red('❌ Error cargando GameEngine:'), gameError.message);
+                // Crear instancia básica para evitar errores
+                global.pokemonSystem.gameEngine = {
+                    initialize: async () => ({ success: false, error: 'Módulo no disponible' }),
+                    getGameState: async () => ({ success: false, error: 'Sistema Pokémon no disponible' })
+                };
+            }
+            
+            try {
+                const userDBModule = await import('./lib/userDatabase.js');
+                userDB = userDBModule.default || userDBModule;
+                global.pokemonSystem.userDB = userDB;
+                modulesLoaded++;
+                console.log(chalk.green('✅ UserDatabase cargado'));
+            } catch (userDBError) {
+                console.error(chalk.red('❌ Error cargando UserDatabase:'), userDBError.message);
+                global.pokemonSystem.userDB = null;
+            }
+            
+            try {
+                const saveManagerModule = await import('./lib/saveManager.js');
+                saveManager = saveManagerModule.default || saveManagerModule;
+                global.pokemonSystem.saveManager = saveManager;
+                modulesLoaded++;
+                console.log(chalk.green('✅ SaveManager cargado'));
+            } catch (saveError) {
+                console.error(chalk.red('❌ Error cargando SaveManager:'), saveError.message);
+                global.pokemonSystem.saveManager = {
+                    autoSave: async () => ({ success: true }),
+                    start: () => console.log('SaveManager básico iniciado')
+                };
+            }
+            
+            // Inicializar GameEngine si se cargó
+            if (gameEngine && typeof gameEngine.initialize === 'function') {
+                try {
+                    await gameEngine.initialize();
+                    console.log(chalk.green('✅ GameEngine inicializado'));
+                } catch (initError) {
+                    console.error(chalk.red('❌ Error inicializando GameEngine:'), initError.message);
+                }
+            }
+            
+            // Iniciar SaveManager si tiene método start
+            if (saveManager && typeof saveManager.start === 'function') {
+                try {
+                    saveManager.start();
+                    console.log(chalk.cyan('🔄 SaveManager iniciado'));
+                } catch (startError) {
+                    console.error(chalk.red('❌ Error iniciando SaveManager:'), startError.message);
+                }
+            }
+            
+            global.pokemonSystem.isReady = modulesLoaded > 0;
+            
+            if (global.pokemonSystem.isReady) {
+                console.log(chalk.bold.green('🎮 Sistema Pokémon completamente cargado y listo'));
+                console.log(chalk.cyan(`📊 Módulos cargados: ${modulesLoaded}/3`));
+            } else {
+                console.log(chalk.yellow('⚠️  Sistema Pokémon parcialmente cargado'));
+                console.log(chalk.yellow('ℹ️  Algunos comandos Pokémon pueden no funcionar'));
+            }
+            
+            return global.pokemonSystem.isReady;
+            
+        } catch (error) {
+            console.error(chalk.red('❌ Error crítico en sistema Pokémon:'), error);
+            global.pokemonSystem.isReady = false;
+            return false;
+        } finally {
+            global.pokemonSystem.initPromise = null;
+        }
+    })();
+    
+    return global.pokemonSystem.initPromise;
+};
+
+// Iniciar carga de módulos Pokémon después de un breve delay
+setTimeout(() => {
+    loadPokemonModules().then(success => {
+        if (success) {
+            // Iniciar limpieza automática del sistema Pokémon
+            startPokemonCleanup();
+        }
+    });
+}, 3000); // 3 segundos de delay para que el sistema principal se estabilice
 // =========================================================
 
 // Base de datos optimizada
@@ -385,9 +452,14 @@ async function connectionUpdate(update) {
     console.log(chalk.cyan(`⚡ Estado: Activo y funcionando`))
     console.log(chalk.gray(`⏰ Hora: ${new Date().toLocaleString('es-MX')}\n`))
     
-    // Mostrar estado del sistema Pokémon si está disponible
-    if (global.pokemonSystem.isReady) {
-      console.log(chalk.bold.magenta(`🎮 Sistema Pokémon: ACTIVO`))
+    // Mostrar estado del sistema Pokémon
+    if (global.pokemonSystem?.isReady) {
+      console.log(chalk.bold.magenta(`🎮 Sistema Pokémon: ACTIVO ✅`))
+      console.log(chalk.magenta(`   • GameEngine: ${global.pokemonSystem.gameEngine ? '✅' : '❌'}`))
+      console.log(chalk.magenta(`   • UserDB: ${global.pokemonSystem.userDB ? '✅' : '❌'}`))
+      console.log(chalk.magenta(`   • SaveManager: ${global.pokemonSystem.saveManager ? '✅' : '❌'}`))
+    } else {
+      console.log(chalk.yellow(`🎮 Sistema Pokémon: INACTIVO o cargando...`))
     }
   }
   let reason = new Boom(lastDisconnect?.error)?.output?.statusCode
@@ -513,6 +585,25 @@ async function filesInit() {
   console.log(chalk.bold.green(`\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓`))
   console.log(chalk.bold.green(`┃  ⚡ TOTAL: ${total} PLUGINS ⚡  ┃`))
   console.log(chalk.bold.green(`┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n`))
+  
+  // Cargar plugin Pokémon si existe
+  await loadPokemonPlugin();
+}
+
+// Cargar plugin Pokémon si existe
+async function loadPokemonPlugin() {
+  const pokemonPluginPath = join(__dirname, 'plugins', 'pokemon.js');
+  if (existsSync(pokemonPluginPath)) {
+    try {
+      const pokemonPlugin = await import(pokemonPluginPath);
+      global.plugins['pokemon.js'] = pokemonPlugin.default || pokemonPlugin;
+      console.log(chalk.green('✅ Plugin Pokémon cargado'));
+    } catch (error) {
+      console.error(chalk.red('❌ Error cargando plugin Pokémon:'), error);
+    }
+  } else {
+    console.log(chalk.yellow('ℹ️  Plugin Pokémon no encontrado, se usará sistema integrado'));
+  }
 }
 
 filesInit().catch(console.error)
@@ -575,6 +666,127 @@ for (const folder of pluginFolders) {
 
 await global.reloadHandler()
 
+// ============ FUNCIONES DE LIMPIEZA SISTEMA POKÉMON ============
+function startPokemonCleanup() {
+  // Limpiar batallas inactivas cada 5 minutos
+  setInterval(() => {
+    if (global.pokemonSystem?.battles) {
+      const now = Date.now();
+      let cleaned = 0;
+      
+      for (const [battleId, battle] of global.pokemonSystem.battles.entries()) {
+        if (battle.startTime && (now - battle.startTime) > 300000) { // 5 minutos
+          global.pokemonSystem.battles.delete(battleId);
+          cleaned++;
+        }
+      }
+      
+      if (cleaned > 0) {
+        console.log(chalk.yellow(`🗑️  Pokémon: Limpiadas ${cleaned} batallas inactivas`));
+      }
+    }
+  }, 5 * 60 * 1000);
+
+  // Limpiar cooldowns expirados cada 1 minuto
+  setInterval(() => {
+    if (global.pokemonSystem?.cooldowns) {
+      const now = Date.now();
+      let cleaned = 0;
+      
+      for (const [userId, cooldowns] of global.pokemonSystem.cooldowns.entries()) {
+        const expired = [];
+        for (const [action, expiry] of Object.entries(cooldowns)) {
+          if (expiry < now) {
+            expired.push(action);
+          }
+        }
+        
+        for (const action of expired) {
+          delete cooldowns[action];
+          cleaned++;
+        }
+        
+        if (Object.keys(cooldowns).length === 0) {
+          global.pokemonSystem.cooldowns.delete(userId);
+        }
+      }
+      
+      if (cleaned > 0) {
+        console.log(chalk.yellow(`🗑️  Pokémon: Limpiados ${cleaned} cooldowns expirados`));
+      }
+    }
+  }, 60 * 1000);
+
+  // Limpiar encuentros salvajes antiguos cada 3 minutos
+  setInterval(() => {
+    if (global.pokemonSystem?.wildEncounters) {
+      const now = Date.now();
+      let cleaned = 0;
+      
+      for (const [userId, encounter] of global.pokemonSystem.wildEncounters.entries()) {
+        if (encounter.timestamp && (now - encounter.timestamp) > 180000) { // 3 minutos
+          global.pokemonSystem.wildEncounters.delete(userId);
+          cleaned++;
+        }
+      }
+      
+      if (cleaned > 0) {
+        console.log(chalk.yellow(`🗑️  Pokémon: Limpiados ${cleaned} encuentros salvajes antiguos`));
+      }
+    }
+  }, 3 * 60 * 1000);
+
+  // Limpiar GameEngine interno cada 10 minutos
+  setInterval(() => {
+    if (global.pokemonSystem?.gameEngine?.cleanupOldEncounters) {
+      try {
+        const cleaned = global.pokemonSystem.gameEngine.cleanupOldEncounters();
+        if (cleaned > 0) {
+          console.log(chalk.yellow(`🗑️  Pokémon GameEngine: Limpiados ${cleaned} encuentros antiguos`));
+        }
+      } catch (error) {
+        console.error(chalk.red('❌ Error limpiando GameEngine:'), error);
+      }
+    }
+  }, 10 * 60 * 1000);
+
+  console.log(chalk.cyan('🔄 Sistema de limpieza Pokémon iniciado'));
+}
+
+// Backup automático de datos Pokémon cada 1 hora
+setInterval(async () => {
+  if (global.pokemonSystem?.saveManager?.createSystemBackup) {
+    try {
+      const result = await global.pokemonSystem.saveManager.createSystemBackup();
+      if (result.success) {
+        console.log(chalk.cyan(`💾 Backup Pokémon completado: ${result.backupId}`));
+      }
+    } catch (error) {
+      console.error(chalk.red('❌ Error en backup Pokémon:'), error);
+    }
+  }
+}, 60 * 60 * 1000);
+
+// ============ MONITOREO DEL SISTEMA POKÉMON ============
+// Mostrar estadísticas del sistema Pokémon cada 30 minutos
+setInterval(() => {
+  if (global.pokemonSystem?.isReady) {
+    const stats = {
+      battles: global.pokemonSystem.battles?.size || 0,
+      cooldowns: global.pokemonSystem.cooldowns?.size || 0,
+      wildEncounters: global.pokemonSystem.wildEncounters?.size || 0,
+      isReady: global.pokemonSystem.isReady
+    };
+    
+    console.log(chalk.magenta('📊 Estadísticas Pokémon:'));
+    console.log(chalk.magenta(`   • Batallas activas: ${stats.battles}`));
+    console.log(chalk.magenta(`   • Usuarios con cooldown: ${stats.cooldowns}`));
+    console.log(chalk.magenta(`   • Encuentros salvajes: ${stats.wildEncounters}`));
+    console.log(chalk.magenta(`   • Sistema listo: ${stats.isReady ? '✅' : '❌'}`));
+  }
+}, 30 * 60 * 1000);
+// =======================================================
+
 // Limpieza de archivos temporales (cada 10 minutos)
 setInterval(async () => {
   const tmpDir = join(__dirname, 'tmp')
@@ -595,65 +807,6 @@ setInterval(async () => {
     }
   } catch {}
 }, 10 * 60 * 1000)
-
-// ============ LIMPIEZA SISTEMA POKÉMON ============
-// Limpiar batallas inactivas cada 5 minutos
-setInterval(() => {
-  if (global.pokemonSystem && global.pokemonSystem.battles) {
-    const now = Date.now()
-    let cleaned = 0
-    
-    for (const [battleId, battle] of global.pokemonSystem.battles.entries()) {
-      if (battle.startTime && (now - battle.startTime) > 300000) { // 5 minutos
-        global.pokemonSystem.battles.delete(battleId)
-        cleaned++
-      }
-    }
-    
-    if (cleaned > 0) {
-      console.log(chalk.yellow(`🗑️  Limpiadas ${cleaned} batallas Pokémon inactivas`))
-    }
-  }
-}, 5 * 60 * 1000)
-
-// Backup automático de datos Pokémon cada 1 hora
-setInterval(async () => {
-  if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.backupAll) {
-    try {
-      await global.pokemonSystem.saveManager.backupAll()
-      console.log(chalk.cyan('💾 Backup automático de datos Pokémon completado'))
-    } catch (error) {
-      console.error(chalk.red('❌ Error en backup automático Pokémon:'), error)
-    }
-  }
-}, 60 * 60 * 1000)
-
-// Limpiar cooldowns expirados cada 1 minuto
-setInterval(() => {
-  if (global.pokemonSystem.cooldowns) {
-    const now = Date.now()
-    let cleaned = 0
-    
-    for (const [userId, cooldowns] of global.pokemonSystem.cooldowns.entries()) {
-      const expired = []
-      for (const [action, expiry] of Object.entries(cooldowns)) {
-        if (expiry < now) {
-          expired.push(action)
-        }
-      }
-      
-      for (const action of expired) {
-        delete cooldowns[action]
-        cleaned++
-      }
-      
-      if (Object.keys(cooldowns).length === 0) {
-        global.pokemonSystem.cooldowns.delete(userId)
-      }
-    }
-  }
-}, 60 * 1000)
-// =================================================
 
 async function _quickTest() {
   const test = await Promise.all([
@@ -706,47 +859,94 @@ async function joinChannels(sock) {
   }
 }
 
-// ============ MANEJO DE CIERRE GRACIOSO ============
-// Detener el sistema Pokémon correctamente al cerrar el bot
-process.on('SIGINT', async () => {
-  console.log(chalk.yellow('\n⚠️  Recibida señal de interrupción, cerrando graciosamente...'))
+// ============ MANEJO DE CIERRE GRACIOSO CON SISTEMA POKÉMON ============
+async function gracefulShutdown() {
+  console.log(chalk.yellow('\n⚠️  Cerrando graciosamente...'));
   
   // Detener saveManager si existe
-  if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.stop) {
+  if (global.pokemonSystem?.saveManager?.stop) {
     try {
-      await global.pokemonSystem.saveManager.stop()
-      console.log(chalk.green('✅ SaveManager detenido correctamente'))
+      await global.pokemonSystem.saveManager.stop();
+      console.log(chalk.green('✅ SaveManager Pokémon detenido'));
     } catch (error) {
-      console.error(chalk.red('❌ Error al detener SaveManager:'), error)
+      console.error(chalk.red('❌ Error deteniendo SaveManager:'), error);
+    }
+  }
+  
+  // Guardar datos de GameEngine si es posible
+  if (global.pokemonSystem?.gameEngine) {
+    try {
+      // Limpiar encuentros activos
+      if (global.pokemonSystem.gameEngine.cleanupOldEncounters) {
+        const cleaned = global.pokemonSystem.gameEngine.cleanupOldEncounters(0); // Limpiar todos
+        console.log(chalk.yellow(`🗑️  Pokémon: Limpiados ${cleaned} encuentros al cerrar`));
+      }
+    } catch (error) {
+      console.error(chalk.red('❌ Error limpiando GameEngine:'), error);
     }
   }
   
   // Guardar base de datos
   if (global.db.data) {
     try {
-      await global.db.write()
-      console.log(chalk.green('✅ Base de datos guardada'))
+      await global.db.write();
+      console.log(chalk.green('✅ Base de datos guardada'));
     } catch (error) {
-      console.error(chalk.red('❌ Error al guardar base de datos:'), error)
+      console.error(chalk.red('❌ Error guardando base de datos:'), error);
     }
   }
   
-  process.exit(0)
-})
+  // Guardar datos Pokémon si userDB tiene método de guardado
+  if (global.pokemonSystem?.userDB?.processSaveQueue) {
+    try {
+      await global.pokemonSystem.userDB.processSaveQueue();
+      console.log(chalk.green('✅ Datos Pokémon guardados'));
+    } catch (error) {
+      console.error(chalk.red('❌ Error guardando datos Pokémon:'), error);
+    }
+  }
+}
+
+// Manejar señales de cierre
+process.on('SIGINT', async () => {
+  console.log(chalk.yellow('\n⚠️  Recibida señal SIGINT'));
+  await gracefulShutdown();
+  process.exit(0);
+});
 
 process.on('SIGTERM', async () => {
-  console.log(chalk.yellow('\n⚠️  Recibida señal de terminación, cerrando...'))
-  
-  // Detener saveManager si existe
-  if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.stop) {
-    try {
-      await global.pokemonSystem.saveManager.stop()
-      console.log(chalk.green('✅ SaveManager detenido correctamente'))
-    } catch (error) {
-      console.error(chalk.red('❌ Error al detener SaveManager:'), error)
+  console.log(chalk.yellow('\n⚠️  Recibida señal SIGTERM'));
+  await gracefulShutdown();
+  process.exit(0);
+});
+
+process.on('beforeExit', async () => {
+  console.log(chalk.yellow('\n⚠️  El proceso está por finalizar'));
+  await gracefulShutdown();
+});
+
+// ============ INFORMACIÓN DE INICIO COMPLETA ============
+console.log(chalk.bold.cyan('\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓'));
+console.log(chalk.bold.cyan('┃      SISTEMA INICIALIZADO          ┃'));
+console.log(chalk.bold.cyan('┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛'));
+console.log(chalk.cyan(`📅 Fecha: ${new Date().toLocaleString('es-MX')}`));
+console.log(chalk.cyan(`📁 Directorio: ${__dirname}`));
+console.log(chalk.cyan(`⚙️  Puerto: ${PORT}`));
+console.log(chalk.cyan(`🔧 Modo: ${opcion === '1' ? 'QR' : 'Código'}`));
+
+// Mostrar estado final del sistema Pokémon
+setTimeout(() => {
+  if (global.pokemonSystem) {
+    console.log(chalk.bold.magenta('\n🎮 ESTADO SISTEMA POKÉMON:'));
+    console.log(chalk.magenta(`   • Ready: ${global.pokemonSystem.isReady ? '✅' : '🔄'}`));
+    console.log(chalk.magenta(`   • GameEngine: ${global.pokemonSystem.gameEngine ? '✅' : '❌'}`));
+    console.log(chalk.magenta(`   • UserDB: ${global.pokemonSystem.userDB ? '✅' : '❌'}`));
+    console.log(chalk.magenta(`   • SaveManager: ${global.pokemonSystem.saveManager ? '✅' : '❌'}`));
+    
+    if (global.pokemonSystem.isReady) {
+      console.log(chalk.bold.green('   ¡Sistema Pokémon listo para usar! 🚀'));
+    } else {
+      console.log(chalk.yellow('   El sistema Pokémon se está cargando en segundo plano...'));
     }
   }
-  
-  process.exit(0)
-})
-// =================================================
+}, 5000);
