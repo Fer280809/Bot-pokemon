@@ -1,4 +1,4 @@
-<h1 align="center">👑『𝕬𝖘𝖙𝖆-𝕭𝖔𝖙』👑</h1>
+<h1 align="center">◓『𝒫𝒪𝒦𝐸-𝐵𝒪𝒯』◓</h1>
 
 <p align="center">
  <img src= "https://files.catbox.moe/yy5uwn.jpeg">
