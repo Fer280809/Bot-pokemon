@@ -7,15 +7,15 @@
 <p align="center">
   <img src="https://files.catbox.moe/yy5uwn.jpeg" alt="POKE-BOT" width="350">
 </p>
-<img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&weight=700&size=30&duration=4000&pause=1000&color=00FF00&width=435¢er=true&vCenter=true&random=false&lines=✨+ESTE+ES+EL+MEJOR+BOT+DE+WHATSAPP+✨;🔥+ASTA-BOT+PREMIUM+🔥;💫+VELOCIDAD+Y+ESTABILIDAD+💫" alt="Typing SVG" />
 <div align="center">
- <h2>
-   <marquee behavior="scroll" direction="left" scrollamount="10">
-     ✨ ESTE ES EL MEJOR BOT DE WHATSAPP ✨ • 🔥 ASTA-BOT PREMIUM 🔥 • 💫 VELOCIDAD Y ESTABILIDAD 💫
-   </marquee>
- </h2>
+  <h2>
+    <a href="#">
+      <div>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</div>
+      <img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&weight=700&size=30&duration=4000&pause=1000&color=00FF00&width=435&center=true&vCenter=true&random=false&lines=✨+ESTE+ES+EL+MEJOR+BOT+DE+WHATSAPP+✨;🔥+ASTA-BOT+PREMIUM+🔥;💫+VELOCIDAD+Y+ESTABILIDAD+💫" alt="Typing SVG" />
+      <div>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</div>
+    </a>
+  </h2>
 </div>
-
 <h1 align="center">🌟 ¡SI ME DAS UNA ESTRELLA ME AYUDARÍA MUCHO! 🌟</h1>
 
 
