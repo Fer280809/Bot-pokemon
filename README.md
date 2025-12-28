@@ -1,8 +1,18 @@
 <h1 align="center">
-  <img src="https://www.svgrepo.com/show/276264/pokeball-pokemon.svg" style="height: 40px; vertical-align: middle;">
+  <img src="https://www.svgrepo.com/show/276264/pokeball-pokemon.svg" width="45" height="45" style="vertical-align: middle; transition: transform 0.5s;">
   『𝒫𝒪𝒦𝐸-𝐵𝒪𝒯』
-  <img src="https://www.svgrepo.com/show/276264/pokeball-pokemon.svg" style="height: 40px; vertical-align: middle;">
+  <img src="https://www.svgrepo.com/show/276264/pokeball-pokemon.svg" width="45" height="45" style="vertical-align: middle; transition: transform 0.5s;">
 </h1>
+
+<p align="center">
+  <img src="https://files.catbox.moe/yy5uwn.jpeg" alt="POKE-BOT" width="350">
+</p>
+
+<style>
+  img[src*="pokeball-pokemon"]:hover {
+    transform: rotate(360deg);
+  }
+</style>
 
 <div align="center">
   <h2>
