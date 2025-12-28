@@ -1,8 +1,8 @@
-<h1 align="center">◓『𝒫𝒪𝒦𝐸-𝐵𝒪𝒯』◓</h1>
-
-<p align="center">
- <img src= "https://files.catbox.moe/yy5uwn.jpeg">
-</p>
+<h1 align="center">
+  <img src="https://www.svgrepo.com/show/276264/pokeball-pokemon.svg" style="height: 40px; vertical-align: middle;">
+  『𝒫𝒪𝒦𝐸-𝐵𝒪𝒯』
+  <img src="https://www.svgrepo.com/show/276264/pokeball-pokemon.svg" style="height: 40px; vertical-align: middle;">
+</h1>
 
 <div align="center">
   <h2>
