@@ -10,9 +10,10 @@
 <div align="center">
   <h2>
     <a href="#">
-      <div>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</div>
-      <img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&weight=700&size=30&duration=4000&pause=1000&color=00FF00&width=435&center=true&vCenter=true&random=false&lines=✨+ESTE+ES+EL+MEJOR+BOT+DE+WHATSAPP+✨;🔥+ASTA-BOT+PREMIUM+🔥;💫+VELOCIDAD+Y+ESTABILIDAD+💫" alt="Typing SVG" />
-      <div>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</div>
+      <img src="https://readme-typing-svg.herokuapp.com?font=Russo+One&weight=700&size=30&duration=4000&pause=1000&color=00FF00&width=850&center=true&vCenter=true&random=false&lines=✨+ESTE+ES+EL+MEJOR+BOT+DE+WHATSAPP+✨;🔥+ASTA-BOT+PREMIUM+🔥;💫+VELOCIDAD+Y+ESTABILIDAD+💫" alt="Typing SVG" />
+    </a>
+  </h2>
+</div>
     </a>
   </h2>
 </div>
