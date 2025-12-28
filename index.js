@@ -32,7 +32,7 @@ const { chain } = lodash
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 
 let { say } = cfonts
-console.log(chalk.magentaBright('\n⚡ Iniciando Sistema...'))
+console.log(chalk.magentaBright('\nвҡЎ Iniciando Sistema...'))
 say('Asta Bot', {
   font: 'block',
   align: 'center',
@@ -66,6 +66,86 @@ global.timestamp = { start: new Date }
 const __dirname = global.__dirname(import.meta.url)
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
 global.prefix = new RegExp('^[#!./-]')
+
+// ============ INICIALIZACIÓN SISTEMA POKÉMON ============
+// Verificar que los archivos necesarios existan
+const pokemonFiles = ['./gameEngine.js', './userDatabase.js', './saveManager.js']
+let pokemonSystemReady = true
+
+for (const file of pokemonFiles) {
+  try {
+    const filePath = join(__dirname, file)
+    if (!existsSync(filePath)) {
+      console.log(chalk.yellow(`⚠️  Archivo Pokémon no encontrado: ${file}`))
+      pokemonSystemReady = false
+    }
+  } catch (error) {
+    pokemonSystemReady = false
+  }
+}
+
+if (pokemonSystemReady) {
+  console.log(chalk.green('✅ Sistema Pokémon detectado, inicializando...'))
+  
+  // Inicializar el sistema Pokémon global
+  global.pokemonSystem = {
+    gameEngine: null,
+    userDB: null,
+    saveManager: null,
+    battles: new Map(),
+    cooldowns: new Map(),
+    wildEncounters: new Map(),
+    isReady: false
+  }
+  
+  // Cargar módulos Pokémon en paralelo
+  Promise.all([
+    import('./gameEngine.js').then(module => {
+      global.pokemonSystem.gameEngine = module.default || module
+      console.log(chalk.green('✅ GameEngine cargado'))
+    }).catch(error => {
+      console.error(chalk.red('❌ Error al cargar GameEngine:'), error)
+    }),
+    
+    import('./userDatabase.js').then(module => {
+      global.pokemonSystem.userDB = module.default || module
+      console.log(chalk.green('✅ UserDatabase cargado'))
+    }).catch(error => {
+      console.error(chalk.red('❌ Error al cargar UserDatabase:'), error)
+    }),
+    
+    import('./saveManager.js').then(module => {
+      global.pokemonSystem.saveManager = module.default || module
+      console.log(chalk.green('✅ SaveManager cargado'))
+    }).catch(error => {
+      console.error(chalk.red('❌ Error al cargar SaveManager:'), error)
+    })
+  ]).then(() => {
+    global.pokemonSystem.isReady = true
+    console.log(chalk.bold.green('🎮 Sistema Pokémon completamente inicializado'))
+    
+    // Iniciar el saveManager si está disponible
+    if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.start) {
+      global.pokemonSystem.saveManager.start()
+    }
+  }).catch(error => {
+    console.error(chalk.red('❌ Error crítico al inicializar sistema Pokémon:'), error)
+  })
+} else {
+  console.log(chalk.yellow('⚠️  Sistema Pokémon no disponible. Algunos comandos no funcionarán.'))
+  
+  // Inicializar objeto vacío para evitar errores
+  global.pokemonSystem = {
+    gameEngine: null,
+    userDB: null,
+    saveManager: null,
+    battles: new Map(),
+    cooldowns: new Map(),
+    wildEncounters: new Map(),
+    isReady: false
+  }
+}
+// =========================================================
 
 // Base de datos optimizada
 global.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile('database.json'))
@@ -110,16 +190,16 @@ if (methodCodeQR) {
 }
 if (!methodCodeQR && !methodCode && !fs.existsSync(`./${sessions}/creds.json`)) {
   do {
-    opcion = await question(chalk.bold.white("Seleccione una opción:\n") + chalk.blueBright("1. Con código QR\n") + chalk.cyan("2. Con código de 8 dígitos\n━━━> "))
+    opcion = await question(chalk.bold.white("Seleccione una opciГіn:\n") + chalk.blueBright("1. Con cГіdigo QR\n") + chalk.cyan("2. Con cГіdigo de 8 dГӯgitos\nв”Ғв”Ғв”Ғ> "))
     if (!/^[1-2]$/.test(opcion)) {
-      console.log(chalk.bold.redBright(`❌ No se permiten números que no sean 1 o 2`))
+      console.log(chalk.bold.redBright(`вқҢ No se permiten nГәmeros que no sean 1 o 2`))
     }
   } while (opcion !== '1' && opcion !== '2' || fs.existsSync(`./${sessions}/creds.json`))
 }
 
 console.info = () => {}
 
-// Opciones de conexión optimizadas para la versión xyz/bails
+// Opciones de conexiГіn optimizadas para la versiГіn xyz/bails
 const connectionOptions = {
   logger: pino({ level: 'silent' }),
   printQRInTerminal: opcion == '1' ? true : methodCodeQR ? true : false,
@@ -154,15 +234,15 @@ const connectionOptions = {
 global.conn = makeWASocket(connectionOptions)
 conn.ev.on("creds.update", saveCreds)
 
-// ============ SECCIÓN CORREGIDA DEL CÓDIGO ============
+// ============ SECCIГ“N CORREGIDA DEL CГ“DIGO ============
 if (!fs.existsSync(`./${sessions}/creds.json`)) {
   if (opcion === '2' || methodCode) {
-    console.log(chalk.yellow('[ ⚡ ] Modo código de emparejamiento activado'))
+    console.log(chalk.yellow('[ вҡЎ ] Modo cГіdigo de emparejamiento activado'))
     
     // Sistema de espera mejorado para xyz/bails
     const waitForConnection = () => {
       return new Promise((resolve) => {
-        console.log(chalk.cyan('[ ⏳ ] Preparando conexión para código...'))
+        console.log(chalk.cyan('[ вҸі ] Preparando conexiГіn para cГіdigo...'))
         
         let attempts = 0
         const maxAttempts = 15
@@ -172,14 +252,14 @@ if (!fs.existsSync(`./${sessions}/creds.json`)) {
           
           if (conn && conn.authState && conn.authState.creds) {
             clearInterval(checkInterval)
-            console.log(chalk.green('[ ✓ ] Conexión lista para código'))
+            console.log(chalk.green('[ вң“ ] ConexiГіn lista para cГіdigo'))
             resolve(true)
           } else if (attempts >= maxAttempts) {
             clearInterval(checkInterval)
-            console.log(chalk.red('[ ✗ ] Tiempo de espera agotado'))
+            console.log(chalk.red('[ вң— ] Tiempo de espera agotado'))
             resolve(false)
           } else if (attempts % 3 === 0) {
-            console.log(chalk.yellow(`[ ⏱️ ] Esperando conexión... (${attempts}/${maxAttempts})`))
+            console.log(chalk.yellow(`[ вҸұпёҸ ] Esperando conexiГіn... (${attempts}/${maxAttempts})`))
           }
         }, 2000)
       })
@@ -191,7 +271,7 @@ if (!fs.existsSync(`./${sessions}/creds.json`)) {
         addNumber = phoneNumber.replace(/[^0-9]/g, '')
       } else {
         do {
-          phoneNumber = await question(chalk.bgBlack(chalk.bold.greenBright(`[ 🔐 ] Ingrese el número de WhatsApp (ej: 5213312345678).\n${chalk.bold.magentaBright('━━━> ')}`)))
+          phoneNumber = await question(chalk.bgBlack(chalk.bold.greenBright(`[ рҹ”җ ] Ingrese el nГәmero de WhatsApp (ej: 5213312345678).\n${chalk.bold.magentaBright('в”Ғв”Ғв”Ғ> ')}`)))
           phoneNumber = phoneNumber.replace(/\D/g, '')
           if (!phoneNumber.startsWith('+')) {
             phoneNumber = `+${phoneNumber}`
@@ -201,19 +281,19 @@ if (!fs.existsSync(`./${sessions}/creds.json`)) {
         addNumber = phoneNumber.replace(/\D/g, '')
       }
 
-      // Esperar a que la conexión esté lista
+      // Esperar a que la conexiГіn estГ© lista
       const isConnected = await waitForConnection()
       
       if (!isConnected) {
-        console.log(chalk.red('\n[ ❌ ] No se pudo establecer la conexión'))
-        console.log(chalk.yellow('[ 💡 ] Soluciones:'))
+        console.log(chalk.red('\n[ вқҢ ] No se pudo establecer la conexiГіn'))
+        console.log(chalk.yellow('[ рҹ’Ў ] Soluciones:'))
         console.log(chalk.cyan('1. Reinicia el bot: npm start'))
-        console.log(chalk.cyan('2. Usa el método QR (Opción 1)'))
-        console.log(chalk.cyan('3. Verifica tu conexión a internet'))
+        console.log(chalk.cyan('2. Usa el mГ©todo QR (OpciГіn 1)'))
+        console.log(chalk.cyan('3. Verifica tu conexiГіn a internet'))
         process.exit(1)
       }
 
-      // Intentar obtener el código con reintentos
+      // Intentar obtener el cГіdigo con reintentos
       let codeGenerated = false
       let attempts = 0
       const maxRetries = 3
@@ -221,44 +301,44 @@ if (!fs.existsSync(`./${sessions}/creds.json`)) {
       while (!codeGenerated && attempts < maxRetries) {
         attempts++
         try {
-          console.log(chalk.yellow(`[ 🔄 ] Generando código (Intento ${attempts}/${maxRetries})...`))
+          console.log(chalk.yellow(`[ рҹ”„ ] Generando cГіdigo (Intento ${attempts}/${maxRetries})...`))
           
-          // IMPORTANTE: Para xyz/bails, el número debe estar SIN el signo +
+          // IMPORTANTE: Para xyz/bails, el nГәmero debe estar SIN el signo +
           const cleanNumber = addNumber.replace('+', '')
           
           let codeBot = await conn.requestPairingCode(cleanNumber)
           
           if (!codeBot || codeBot.trim() === '') {
-            throw new Error('Código vacío recibido')
+            throw new Error('CГіdigo vacГӯo recibido')
           }
           
-          // Formatear código: XXXX-XXXX
+          // Formatear cГіdigo: XXXX-XXXX
           codeBot = codeBot?.match(/.{1,4}/g)?.join("-") || codeBot
           
-          console.log(chalk.bold.white(chalk.bgMagenta(`\n╔═══════════════════════════════════╗`)))
-          console.log(chalk.bold.white(chalk.bgMagenta(`║       🔑 CÓDIGO DE VINCULACIÓN    ║`)))
-          console.log(chalk.bold.white(chalk.bgMagenta(`╚═══════════════════════════════════╝`)))
+          console.log(chalk.bold.white(chalk.bgMagenta(`\nв•”в•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•—`)))
+          console.log(chalk.bold.white(chalk.bgMagenta(`в•‘       рҹ”‘ CГ“DIGO DE VINCULACIГ“N    в•‘`)))
+          console.log(chalk.bold.white(chalk.bgMagenta(`в•ҡв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•қ`)))
           console.log(chalk.bold.white(chalk.bgGreen(`        ${codeBot}        `)))
-          console.log(chalk.yellow(`\n📱 Pasos para vincular:`))
-          console.log(chalk.cyan(`1. Abre WhatsApp en tu teléfono`))
-          console.log(chalk.cyan(`2. Ve a Ajustes → Dispositivos vinculados`))
+          console.log(chalk.yellow(`\nрҹ“ұ Pasos para vincular:`))
+          console.log(chalk.cyan(`1. Abre WhatsApp en tu telГ©fono`))
+          console.log(chalk.cyan(`2. Ve a Ajustes вҶ’ Dispositivos vinculados`))
           console.log(chalk.cyan(`3. Toca "Vincular un dispositivo"`))
-          console.log(chalk.cyan(`4. Ingresa este código: ${codeBot}`))
-          console.log(chalk.green(`\n⏰ El código expira en 5 minutos\n`))
+          console.log(chalk.cyan(`4. Ingresa este cГіdigo: ${codeBot}`))
+          console.log(chalk.green(`\nвҸ° El cГіdigo expira en 5 minutos\n`))
           
           codeGenerated = true
           
         } catch (error) {
-          console.error(chalk.red(`❌ Error (Intento ${attempts}/${maxRetries}): ${error.message}`))
+          console.error(chalk.red(`вқҢ Error (Intento ${attempts}/${maxRetries}): ${error.message}`))
           
           if (attempts < maxRetries) {
-            console.log(chalk.yellow(`[ ⏱️ ] Esperando 5 segundos para reintentar...`))
+            console.log(chalk.yellow(`[ вҸұпёҸ ] Esperando 5 segundos para reintentar...`))
             await new Promise(resolve => setTimeout(resolve, 5000))
           } else {
-            console.log(chalk.red('\n[ ❌ ] No se pudo generar el código después de varios intentos'))
-            console.log(chalk.yellow(`[ 💡 ] Soluciones rápidas:`))
-            console.log(chalk.cyan(`1. Usa el método QR (Opción 1)`))
-            console.log(chalk.cyan(`2. Verifica que el número sea válido`))
+            console.log(chalk.red('\n[ вқҢ ] No se pudo generar el cГіdigo despuГ©s de varios intentos'))
+            console.log(chalk.yellow(`[ рҹ’Ў ] Soluciones rГЎpidas:`))
+            console.log(chalk.cyan(`1. Usa el mГ©todo QR (OpciГіn 1)`))
+            console.log(chalk.cyan(`2. Verifica que el nГәmero sea vГЎlido`))
             console.log(chalk.cyan(`3. Espera 10 minutos e intenta de nuevo`))
             console.log(chalk.cyan(`4. Reinstala las dependencias: rm -rf node_modules && npm install`))
           }
@@ -267,7 +347,7 @@ if (!fs.existsSync(`./${sessions}/creds.json`)) {
     }
   }
 }
-// ============ FIN SECCIÓN CORREGIDA ============
+// ============ FIN SECCIГ“N CORREGIDA ============
 
 conn.isInit = false
 conn.well = false
@@ -290,26 +370,26 @@ async function connectionUpdate(update) {
   if (global.db.data == null) loadDatabase()
   if (update.qr != 0 && update.qr != undefined || methodCodeQR) {
     if (opcion == '1' || methodCodeQR) {
-      console.log(chalk.green.bold(`[ 📱 ] Escanea este código QR`))
+      console.log(chalk.green.bold(`[ рҹ"ұ ] Escanea este cГіdigo QR`))
     }
   }
   if (connection === "open") {
     const userName = conn.user.name || conn.user.verifiedName || "Usuario"
     await joinChannels(conn).catch(() => {})
-    console.log(chalk.bold.greenBright(`\n╔═══════════════════════════════════╗`))
-    console.log(chalk.bold.greenBright(`║   ✅ BOT CONECTADO EXITOSAMENTE   ║`))
-    console.log(chalk.bold.greenBright(`╚═══════════════════════════════════╝`))
-    console.log(chalk.cyan(`👤 Usuario: ${userName}`))
-    console.log(chalk.cyan(`📱 Número: ${conn.user.id.split(':')[0]}`))
-    console.log(chalk.cyan(`🔥 Estado: Activo y funcionando`))
-    console.log(chalk.gray(`⏰ Hora: ${new Date().toLocaleString('es-MX')}\n`))
+    console.log(chalk.bold.greenBright(`\nв•”в•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•—`))
+    console.log(chalk.bold.greenBright(`в•‘   вң… BOT CONECTADO EXITOSAMENTE   в•‘`))
+    console.log(chalk.bold.greenBright(`в•ҡв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•қ`))
+    console.log(chalk.cyan(`рҹ‘Ө Usuario: ${userName}`))
+    console.log(chalk.cyan(`рҹ"ұ NГәmero: ${conn.user.id.split(':')[0]}`))
+    console.log(chalk.cyan(`рҹ"Ҙ Estado: Activo y funcionando`))
+    console.log(chalk.gray(`вҸ° Hora: ${new Date().toLocaleString('es-MX')}\n`))
   }
   let reason = new Boom(lastDisconnect?.error)?.output?.statusCode
   if (connection === "close") {
     if ([401, 440, 428, 405].includes(reason)) {
-      console.log(chalk.red(`⚠ (${code}) › Sesión principal cerrada.`))
+      console.log(chalk.red(`вҡ  (${code}) вҖә SesiГіn principal cerrada.`))
     }
-    console.log(chalk.yellow("⟳ Reconectando el Bot..."))
+    console.log(chalk.yellow("вҹі Reconectando el Bot..."))
     await global.reloadHandler(true).catch(console.error)
   }
 }
@@ -350,7 +430,7 @@ global.reloadHandler = async function(restatConn) {
 }
 
 process.on('unhandledRejection', (reason) => {
-  console.error("⚠ Rechazo no manejado:", reason)
+  console.error("вҡ  Rechazo no manejado:", reason)
 })
 
 // SubBots
@@ -358,7 +438,7 @@ global.rutaJadiBot = join(__dirname, `./${jadi}`)
 if (global.AstaJadibts) {
   if (!existsSync(global.rutaJadiBot)) {
     mkdirSync(global.rutaJadiBot, { recursive: true })
-    console.log(chalk.bold.cyan(`✓ Carpeta ${jadi} creada`))
+    console.log(chalk.bold.cyan(`вң" Carpeta ${jadi} creada`))
   }
   const readRutaJadiBot = readdirSync(rutaJadiBot)
   if (readRutaJadiBot.length > 0) {
@@ -379,9 +459,9 @@ const pluginFilter = filename => /\.js$/.test(filename)
 global.plugins = {}
 
 async function filesInit() {
-  console.log(chalk.bold.cyan('\n╔═══════════════════════════════════╗'))
-  console.log(chalk.bold.cyan('║      CARGANDO PLUGINS...          ║'))
-  console.log(chalk.bold.cyan('╚═══════════════════════════════════╝\n'))
+  console.log(chalk.bold.cyan('\nв•”в•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•—'))
+  console.log(chalk.bold.cyan('в•‘      CARGANDO PLUGINS...          в•‘'))
+  console.log(chalk.bold.cyan('в•ҡв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•қ\n'))
 
   const allLoadPromises = []
   const folderStats = {}
@@ -389,7 +469,7 @@ async function filesInit() {
   for (const folder of pluginFolders) {
     const folderPath = join(__dirname, folder)
     if (!existsSync(folderPath)) {
-      console.log(chalk.gray(`⚠ ${folder} no existe`))
+      console.log(chalk.gray(`вҡ  ${folder} no existe`))
       continue
     }
 
@@ -406,7 +486,7 @@ async function filesInit() {
             return { folder, filename, success: true }
           })
           .catch(e => {
-            console.error(chalk.red(`❌ ${folder}/${filename}: ${e.message}`))
+            console.error(chalk.red(`вқҢ ${folder}/${filename}: ${e.message}`))
             delete global.plugins[filename]
             return { folder, filename, success: false }
           })
@@ -419,14 +499,14 @@ async function filesInit() {
   let total = 0
   for (const [folder, count] of Object.entries(folderStats)) {
     if (count > 0) {
-      console.log(chalk.green(`✓ ${folder}: ${count} plugins`))
+      console.log(chalk.green(`вң" ${folder}: ${count} plugins`))
       total += count
     }
   }
 
-  console.log(chalk.bold.green(`\n╔═══════════════════════════════════╗`))
-  console.log(chalk.bold.green(`║  🔥 TOTAL: ${total} PLUGINS 🔥  ║`))
-  console.log(chalk.bold.green(`╚═══════════════════════════════════╝\n`))
+  console.log(chalk.bold.green(`\nв•”в•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•—`))
+  console.log(chalk.bold.green(`в•‘  рҹ"Ҙ TOTAL: ${total} PLUGINS рҹ"Ҙ  в•‘`))
+  console.log(chalk.bold.green(`в•ҡв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•җв•қ\n`))
 }
 
 filesInit().catch(console.error)
@@ -445,9 +525,9 @@ global.reload = async (_ev, filename) => {
       const isUpdate = filename in global.plugins
 
       if (isUpdate) {
-        console.log(chalk.yellow(`⟳ ${folder}/${filename}`))
+        console.log(chalk.yellow(`вҹі ${folder}/${filename}`))
       } else {
-        console.log(chalk.green(`✨ ${folder}/${filename}`))
+        console.log(chalk.green(`вңЁ ${folder}/${filename}`))
       }
 
       const err = syntaxerror(readFileSync(dir), filename, {
@@ -456,14 +536,14 @@ global.reload = async (_ev, filename) => {
       })
 
       if (err) {
-        console.error(chalk.red(`❌ Syntax error: ${filename}`))
+        console.error(chalk.red(`вқҢ Syntax error: ${filename}`))
         delete global.plugins[filename]
       } else {
         try {
           const module = await import(`${global.__filename(dir)}?update=${Date.now()}`)
           global.plugins[filename] = module.default || module
         } catch (e) {
-          console.error(chalk.red(`❌ ${filename}: ${e.message}`))
+          console.error(chalk.red(`вқҢ ${filename}: ${e.message}`))
           delete global.plugins[filename]
         }
       }
@@ -472,7 +552,7 @@ global.reload = async (_ev, filename) => {
   }
 
   if (filename in global.plugins) {
-    console.log(chalk.red(`🗑 ${filename}`))
+    console.log(chalk.red(`рҹ—' ${filename}`))
     delete global.plugins[filename]
   }
 }
@@ -509,6 +589,39 @@ setInterval(async () => {
     }
   } catch {}
 }, 10 * 60 * 1000)
+
+// ============ LIMPIEZA SISTEMA POKÉMON ============
+// Limpiar batallas inactivas cada 5 minutos
+setInterval(() => {
+  if (global.pokemonSystem && global.pokemonSystem.battles) {
+    const now = Date.now()
+    let cleaned = 0
+    
+    for (const [battleId, battle] of global.pokemonSystem.battles.entries()) {
+      if (battle.startTime && (now - battle.startTime) > 300000) { // 5 minutos
+        global.pokemonSystem.battles.delete(battleId)
+        cleaned++
+      }
+    }
+    
+    if (cleaned > 0) {
+      console.log(chalk.yellow(`🗑️  Limpiadas ${cleaned} batallas Pokémon inactivas`))
+    }
+  }
+}, 5 * 60 * 1000)
+
+// Backup automático de datos Pokémon cada 1 hora
+setInterval(async () => {
+  if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.backupAll) {
+    try {
+      await global.pokemonSystem.saveManager.backupAll()
+      console.log(chalk.cyan('💾 Backup automático de datos Pokémon completado'))
+    } catch (error) {
+      console.error(chalk.red('❌ Error en backup automático Pokémon:'), error)
+    }
+  }
+}, 60 * 60 * 1000)
+// =================================================
 
 async function _quickTest() {
   const test = await Promise.all([
@@ -560,3 +673,47 @@ async function joinChannels(sock) {
     }
   }
 }
+
+// ============ MANEJO DE CIERRE GRACIAL ============
+// Detener el sistema Pokémon correctamente al cerrar el bot
+process.on('SIGINT', async () => {
+  console.log(chalk.yellow('\n⚠️  Recibida señal de interrupción, cerrando graciosamente...'))
+  
+  // Detener saveManager si existe
+  if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.stop) {
+    try {
+      await global.pokemonSystem.saveManager.stop()
+      console.log(chalk.green('✅ SaveManager detenido correctamente'))
+    } catch (error) {
+      console.error(chalk.red('❌ Error al detener SaveManager:'), error)
+    }
+  }
+  
+  // Guardar base de datos
+  if (global.db.data) {
+    try {
+      await global.db.write()
+      console.log(chalk.green('✅ Base de datos guardada'))
+    } catch (error) {
+      console.error(chalk.red('❌ Error al guardar base de datos:'), error)
+    }
+  }
+  
+  process.exit(0)
+})
+
+process.on('SIGTERM', async () => {
+  console.log(chalk.yellow('\n⚠️  Recibida señal de terminación, cerrando...'))
+  
+  // Detener saveManager si existe
+  if (global.pokemonSystem.saveManager && global.pokemonSystem.saveManager.stop) {
+    try {
+      await global.pokemonSystem.saveManager.stop()
+      console.log(chalk.green('✅ SaveManager detenido correctamente'))
+    } catch (error) {
+      console.error(chalk.red('❌ Error al detener SaveManager:'), error)
+    }
+  }
+  
+  process.exit(0)
+})
