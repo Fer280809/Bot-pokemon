@@ -9,26 +9,23 @@ import ws from "ws"
 // Importación necesaria para la nueva detección de admins
 import { jidNormalizedUser, areJidsSameUser } from '@whiskeysockets/baileys'
 
-// ============ SISTEMA POKÉMON ============
-// Importación de los núcleos del sistema Pokémon
-import gameEngine from './lib/gameEngine.js'
-import userDB from './lib/userDatabase.js'
-import saveManager from './lib/saveManager.js'
-// =========================================
-
 const isNumber = x => typeof x === "number" && !isNaN(x)
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function () {
     clearTimeout(this)
     resolve()
 }, ms))
 
-// Variable global para el sistema Pokémon
-global.pokemonSystem = {
-    gameEngine: null,
-    userDB: null,
-    saveManager: null,
-    battles: new Map(), // Mapa de batallas activas
-    cooldowns: new Map() // Mapa de cooldowns por usuario
+// Variable global para el sistema Pokémon (ya inicializada en index.js)
+// Solo nos aseguramos de que exista
+if (!global.pokemonSystem) {
+    global.pokemonSystem = {
+        gameEngine: null,
+        userDB: null,
+        saveManager: null,
+        battles: new Map(),
+        cooldowns: new Map(),
+        isReady: false
+    }
 }
 
 export async function handler(chatUpdate) {
@@ -39,26 +36,43 @@ export async function handler(chatUpdate) {
     let m = chatUpdate.messages[chatUpdate.messages.length - 1]
     if (!m) return
     
-    // ============ INICIALIZACIÓN SISTEMA POKÉMON ============
-    // Inicializar sistema Pokémon si no está cargado
-    if (!global.pokemonSystem.gameEngine) {
+    // ============ VERIFICACIÓN SISTEMA POKÉMON ============
+    // Verificar si el sistema Pokémon está disponible
+    let pokemonAvailable = false;
+    
+    if (global.pokemonSystem?.isReady) {
+        pokemonAvailable = true;
+    } else if (global.pokemonSystem?.initPromise) {
+        // Esperar a que termine la inicialización si está en progreso
         try {
-            global.pokemonSystem.gameEngine = gameEngine
-            global.pokemonSystem.userDB = userDB
-            global.pokemonSystem.saveManager = saveManager
-            
-            console.log(chalk.green('✅ Sistema Pokémon inicializado correctamente'))
-            
-            // Iniciar el save manager
-            if (saveManager && typeof saveManager.start === 'function') {
-                saveManager.start()
-                console.log(chalk.cyan('🔄 Save Manager iniciado'))
-            }
+            await global.pokemonSystem.initPromise;
+            pokemonAvailable = global.pokemonSystem.isReady;
         } catch (error) {
-            console.error(chalk.red('❌ Error al inicializar sistema Pokémon:'), error)
+            console.log(chalk.yellow('⚠️  Sistema Pokémon falló al inicializar en handler'));
+            pokemonAvailable = false;
         }
     }
-    // =========================================================
+    
+    // Si el sistema Pokémon no está listo, intentar cargar módulos básicos
+    if (!pokemonAvailable && !global.pokemonSystem.gameEngine) {
+        try {
+            // Intentar cargar gameEngine localmente si no está disponible
+            const gameEngineModule = await import('./lib/gameEngine.js').catch(() => null);
+            if (gameEngineModule) {
+                global.pokemonSystem.gameEngine = gameEngineModule.default || gameEngineModule;
+                
+                // Intentar inicializar
+                if (global.pokemonSystem.gameEngine.initialize) {
+                    await global.pokemonSystem.gameEngine.initialize().catch(() => {});
+                }
+                
+                console.log(chalk.green('✅ GameEngine cargado en handler'));
+            }
+        } catch (error) {
+            // Silenciar error, el sistema Pokémon no es crítico
+        }
+    }
+    // ======================================================
     
     if (global.db.data == null)
         await global.loadDatabase()
@@ -116,6 +130,29 @@ export async function handler(chatUpdate) {
                         isBattling: false,
                         battleId: null,
                         cooldowns: {}
+                    }
+                } else {
+                    // Asegurar estructura si ya existe
+                    user.pokemon = {
+                        trainerId: user.pokemon.trainerId || Date.now().toString(36) + Math.random().toString(36).substr(2),
+                        starters: user.pokemon.starters || [],
+                        team: user.pokemon.team || [],
+                        pc: user.pokemon.pc || [],
+                        pokedex: user.pokemon.pokedex || [],
+                        badges: user.pokemon.badges || [],
+                        money: user.pokemon.money || 1000,
+                        items: user.pokemon.items || {
+                            pokeballs: { normal: 5, great: 0, ultra: 0 },
+                            potions: { normal: 3, super: 0, hyper: 0 },
+                            revives: 0,
+                            berries: []
+                        },
+                        location: user.pokemon.location || "pueblo_paleta",
+                        battles: user.pokemon.battles || { wins: 0, losses: 0, catches: 0 },
+                        lastActive: user.pokemon.lastActive || Date.now(),
+                        isBattling: user.pokemon.isBattling || false,
+                        battleId: user.pokemon.battleId || null,
+                        cooldowns: user.pokemon.cooldowns || {}
                     }
                 }
                 // ======================================================
@@ -262,47 +299,88 @@ export async function handler(chatUpdate) {
         const isOwners = [this.user.jid, ...global.owner.map((number) => number + "@s.whatsapp.net")].includes(m.sender)
         
         // ============ MIDDLEWARE DE ESTADO POKÉMON ============
-        // Verificar si el usuario está en batalla
-        if (user.pokemon && user.pokemon.isBattling) {
-            // Comandos permitidos durante batalla
-            const allowedCommands = ['.atacar', '.huir', '.rendirse', '.mochila', '.pokemon', '.equipo', '.usar']
-            const isAllowed = allowedCommands.some(cmd => m.text.startsWith(cmd))
-            
-            if (!isAllowed) {
-                // Verificar tiempo de batalla
-                const battle = global.pokemonSystem.battles.get(user.pokemon.battleId)
-                if (battle) {
-                    const battleStart = battle.startTime || Date.now()
-                    const battleDuration = Date.now() - battleStart
-                    const timeout = settings.pokemonBattleTimeout || 300000
-                    
-                    if (battleDuration > timeout) {
-                        // Finalizar batalla por timeout
+        // Solo aplicar middleware si el sistema Pokémon está disponible
+        if (pokemonAvailable && user.pokemon) {
+            // Verificar si el usuario está en batalla
+            if (user.pokemon.isBattling) {
+                // Comandos permitidos durante batalla
+                const allowedCommands = ['.atacar', '.huir', '.rendirse', '.mochila', '.pokemon', '.equipo', '.usar', '.batalla', '.capturar', '.cambiar']
+                const isAllowed = allowedCommands.some(cmd => m.text.startsWith(cmd))
+                
+                if (!isAllowed) {
+                    // Verificar tiempo de batalla
+                    const battle = global.pokemonSystem.battles.get(user.pokemon.battleId)
+                    if (battle) {
+                        const battleStart = battle.startTime || Date.now()
+                        const battleDuration = Date.now() - battleStart
+                        const timeout = settings.pokemonBattleTimeout || 300000
+                        
+                        if (battleDuration > timeout) {
+                            // Finalizar batalla por timeout
+                            user.pokemon.isBattling = false
+                            user.pokemon.battleId = null
+                            if (user.pokemon.battleId) {
+                                global.pokemonSystem.battles.delete(user.pokemon.battleId)
+                            }
+                            
+                            await this.reply(m.chat, `⏰ La batalla Pokémon ha finalizado por tiempo límite.`, m)
+                        } else {
+                            return this.reply(m.chat, `❌ *${user.name}*, estás en medio de una batalla Pokémon!\n\nUsa los comandos de batalla:\n• *.atacar* - Atacar al oponente\n• *.capturar* - Intentar capturar\n• *.cambiar* - Cambiar Pokémon\n• *.huir* - Huir de la batalla\n• *.mochila* - Usar items\n• *.equipo* - Ver tu equipo`, m)
+                        }
+                    } else {
                         user.pokemon.isBattling = false
                         user.pokemon.battleId = null
-                        global.pokemonSystem.battles.delete(user.pokemon.battleId)
-                        
-                        await this.reply(m.chat, `⏰ La batalla ha finalizado por tiempo límite.`, m)
-                    } else {
-                        return this.reply(m.chat, `❌ *${user.name}*, estás en medio de una batalla Pokémon!\nUsa los comandos de batalla o *.huir* para salir.`, m)
                     }
-                } else {
-                    user.pokemon.isBattling = false
-                    user.pokemon.battleId = null
                 }
             }
-        }
-        
-        // Verificar cooldowns
-        if (user.pokemon && user.pokemon.cooldowns) {
-            const now = Date.now()
-            const cooldownKeys = Object.keys(user.pokemon.cooldowns)
             
-            for (const key of cooldownKeys) {
-                if (user.pokemon.cooldowns[key] < now) {
+            // Verificar cooldowns globales
+            if (global.pokemonSystem.cooldowns.has(m.sender)) {
+                const userCooldowns = global.pokemonSystem.cooldowns.get(m.sender)
+                const now = Date.now()
+                let activeCooldowns = []
+                
+                for (const [action, expiry] of Object.entries(userCooldowns)) {
+                    if (now < expiry) {
+                        const remaining = Math.ceil((expiry - now) / 1000)
+                        activeCooldowns.push(`${action}: ${remaining}s`)
+                    }
+                }
+                
+                // Limpiar cooldowns expirados
+                if (activeCooldowns.length === 0) {
+                    global.pokemonSystem.cooldowns.delete(m.sender)
+                }
+                
+                // Si hay cooldowns activos y el comando es de Pokémon
+                const pokemonCommands = ['explorar', 'viajar', 'entrenar', 'pescar', 'capturar', 'batalla']
+                const isPokemonCommand = pokemonCommands.some(cmd => m.text.toLowerCase().includes(cmd))
+                
+                if (isPokemonCommand && activeCooldowns.length > 0) {
+                    return this.reply(m.chat, `⏳ *${user.name}*, tienes cooldowns activos:\n${activeCooldowns.join('\n')}\n\nEspera antes de realizar otra acción Pokémon.`, m)
+                }
+            }
+            
+            // Verificar cooldowns específicos del usuario
+            if (user.pokemon.cooldowns) {
+                const now = Date.now()
+                const cooldownKeys = Object.keys(user.pokemon.cooldowns)
+                let expiredCooldowns = []
+                
+                for (const key of cooldownKeys) {
+                    if (user.pokemon.cooldowns[key] < now) {
+                        expiredCooldowns.push(key)
+                    }
+                }
+                
+                // Eliminar cooldowns expirados
+                for (const key of expiredCooldowns) {
                     delete user.pokemon.cooldowns[key]
                 }
             }
+            
+            // Actualizar último activo
+            user.pokemon.lastActive = Date.now()
         }
         // ======================================================
         
@@ -400,7 +478,8 @@ export async function handler(chatUpdate) {
                         gameEngine: global.pokemonSystem.gameEngine,
                         userDB: global.pokemonSystem.userDB,
                         saveManager: global.pokemonSystem.saveManager,
-                        pokemonSystem: global.pokemonSystem
+                        pokemonSystem: global.pokemonSystem,
+                        pokemonAvailable: pokemonAvailable
                         // ====================================================
                     })
                 } catch (err) {
@@ -458,7 +537,8 @@ export async function handler(chatUpdate) {
                         gameEngine: global.pokemonSystem.gameEngine,
                         userDB: global.pokemonSystem.userDB,
                         saveManager: global.pokemonSystem.saveManager,
-                        pokemonSystem: global.pokemonSystem
+                        pokemonSystem: global.pokemonSystem,
+                        pokemonAvailable: pokemonAvailable
                         // ====================================================
                     })) {
                     continue
@@ -514,11 +594,24 @@ export async function handler(chatUpdate) {
                     const primaryBotId = chat.primaryBot
                     
                     // ============ VERIFICACIÓN SISTEMA POKÉMON HABILITADO ============
-                    const pokemonCommands = ['pokedex', 'pokemon', 'equipo', 'capturar', 'batallar', 'mochila', 'tienda', 'viajar', 'entrenar', 'ruta']
+                    const pokemonCommands = ['pokedex', 'pokemon', 'equipo', 'capturar', 'batalla', 'batallar', 'mochila', 'tienda', 'viajar', 'entrenar', 'ruta', 'explorar', 'pescar', 'iniciarpokemon', 'starter', 'pokestop', 'gimnasio', 'liga', 'pc', 'caja', 'intercambiar', 'evolucionar']
                     const isPokemonCommand = pokemonCommands.includes(command)
                     
-                    if (isPokemonCommand && !chat.pokemonEnabled && !isROwner) {
-                        return this.reply(m.chat, `❌ El sistema Pokémon está deshabilitado en este grupo.\nUsa *${usedPrefix}pokemon on* para activarlo.`, m)
+                    if (isPokemonCommand) {
+                        // Verificar si el sistema Pokémon está disponible
+                        if (!pokemonAvailable) {
+                            return this.reply(m.chat, `❌ El sistema Pokémon no está disponible en este momento.\n\nEl sistema puede estar:\n• En proceso de carga\n• No instalado completamente\n• Con errores de inicialización\n\nIntenta nuevamente en unos momentos o contacta al desarrollador.`, m)
+                        }
+                        
+                        // Verificar si está habilitado en el chat
+                        if (!chat.pokemonEnabled && !isROwner) {
+                            return this.reply(m.chat, `❌ El sistema Pokémon está deshabilitado en este grupo.\n\nUsa *${usedPrefix}pokemon on* para activarlo (solo administradores).`, m)
+                        }
+                        
+                        // Verificar si el bot lo tiene habilitado
+                        if (!settings.pokemonSystem && !isROwner) {
+                            return this.reply(m.chat, `❌ El sistema Pokémon está deshabilitado en la configuración del bot.\n\nContacta a un administrador del bot para activarlo.`, m)
+                        }
                     }
                     // ================================================================
                     
@@ -607,7 +700,15 @@ export async function handler(chatUpdate) {
                     userDB: global.pokemonSystem.userDB,
                     saveManager: global.pokemonSystem.saveManager,
                     pokemonSystem: global.pokemonSystem,
-                    isPokemonCommand: isPokemonCommand || false
+                    pokemonAvailable: pokemonAvailable,
+                    isPokemonCommand: isPokemonCommand || false,
+                    setPokemonCooldown: (action, seconds = 30) => {
+                        if (!global.pokemonSystem.cooldowns.has(m.sender)) {
+                            global.pokemonSystem.cooldowns.set(m.sender, {})
+                        }
+                        const userCooldowns = global.pokemonSystem.cooldowns.get(m.sender)
+                        userCooldowns[action] = Date.now() + (seconds * 1000)
+                    }
                     // ====================================================
                 }
                 
@@ -616,16 +717,22 @@ export async function handler(chatUpdate) {
                     
                     // ============ SISTEMA DE GUARDADO POKÉMON ============
                     // Guardar datos Pokémon después de comandos relacionados
-                    if (isPokemonCommand && settings.pokemonAutoSave && global.pokemonSystem.saveManager) {
+                    if (isPokemonCommand && settings.pokemonAutoSave && pokemonAvailable) {
                         try {
-                            // Marcar usuario para guardado
-                            await global.pokemonSystem.saveManager.queueSave(m.sender, user.pokemon)
+                            // Actualizar último activo en datos Pokémon
+                            if (user.pokemon) {
+                                user.pokemon.lastActive = Date.now()
+                            }
                             
-                            // También guardar en la base de datos global
-                            global.db.write()
+                            // Guardar en la base de datos global
+                            global.db.write().catch(console.error)
                             
-                            // Actualizar último activo
-                            user.pokemon.lastActive = Date.now()
+                            // Intentar guardar en saveManager si está disponible
+                            if (global.pokemonSystem.saveManager?.autoSave) {
+                                setTimeout(() => {
+                                    global.pokemonSystem.saveManager.autoSave(m.sender, command).catch(() => {})
+                                }, 1000)
+                            }
                             
                         } catch (saveError) {
                             console.error(chalk.red('❌ Error al guardar datos Pokémon:'), saveError)
@@ -636,6 +743,19 @@ export async function handler(chatUpdate) {
                 } catch (err) {
                     m.error = err
                     console.error(err)
+                    
+                    // Manejar errores específicos de Pokémon
+                    if (isPokemonCommand) {
+                        const errorMessage = err.message || 'Error desconocido'
+                        
+                        if (errorMessage.includes('no encontrado') || errorMessage.includes('not found')) {
+                            await this.reply(m.chat, `❌ Error en comando Pokémon: ${errorMessage}\n\nPuede que tu perfil Pokémon no esté inicializado. Usa *${usedPrefix}iniciarpokemon* para comenzar.`, m)
+                        } else if (errorMessage.includes('cooldown') || errorMessage.includes('espera')) {
+                            // Ya manejado por el middleware
+                        } else {
+                            await this.reply(m.chat, `❌ Error en comando Pokémon: ${errorMessage}\n\nEl sistema Pokémon puede tener problemas temporales. Intenta nuevamente en unos momentos.`, m)
+                        }
+                    }
                 } finally {
                     if (typeof plugin.after === "function") {
                         try {
@@ -681,7 +801,8 @@ export async function handler(chatUpdate) {
             private: `📩 *Solo privado* 📩\nEl comando *${comando}* solo puede usarse en *chat privado* con el bot.`,
             admin: `⚠️ *Requiere permisos de admin* ⚠️\nEl comando *${comando}* solo puede ser usado por los *administradores del grupo*.`,
             botAdmin: `🤖 *Necesito permisos* 🤖\nPara ejecutar *${comando}*, el bot debe ser *administrador del grupo*.`,
-            restrict: `⛔ *Funcionalidad desactivada* ⛔\nEsta característica está *temporalmente deshabilitada*.`
+            restrict: `⛔ *Funcionalidad desactivada* ⛔\nEsta característica está *temporalmente deshabilitada*.`,
+            pokemonDisabled: `🎮 *Sistema Pokémon desactivado* 🎮\nEl sistema Pokémon está deshabilitado en este grupo o chat.\nUsa *${usedPrefix}pokemon on* para activarlo.`
         } [type]
         if (msg) return conn.reply(m.chat, msg, m, rcanal).then(_ => m.react('✖️'))
     }
