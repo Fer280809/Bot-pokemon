@@ -8,12 +8,6 @@
   <img src="https://files.catbox.moe/yy5uwn.jpeg" alt="POKE-BOT" width="350">
 </p>
 
-<style>
-  img[src*="pokeball-pokemon"]:hover {
-    transform: rotate(360deg);
-  }
-</style>
-
 <div align="center">
   <h2>
     <a href="#">
