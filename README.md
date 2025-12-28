@@ -1,7 +1,7 @@
 <h1 align="center">👑『𝕬𝖘𝖙𝖆-𝕭𝖔𝖙』👑</h1>
 
 <p align="center">
- <img src= "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgwEyPc2ZcSJLv1nKjMoNcqTD_PZl1Zk9ujraVrJSEw_efKhnurC6XGA6VOj73W-ygzfgfou1-g_3EzCX41BCiLXPvTjcIUy4BL78F9l9MuQlWAIg4E3DjO-Kx-qO-yIIhkOyeYaqDeyx8MW4EusFhzDUqID_Pk2RRUWhDfHErCquK71DBo9v4BhRjtXBNt/s736/b63bb3b9-7464-494f-937f-9aa4394cb124.jpg">
+ <img src= "https://files.catbox.moe/yy5uwn.jpeg">
 </p>
 
 <div align="center">
